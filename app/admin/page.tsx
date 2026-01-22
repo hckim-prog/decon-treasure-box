@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
 // ⚠️ 여기에 친구의 Apps Script 배포 URL을 넣어주세요! (Exec URL)
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw-K5HLw4J-Dm3u371OKUN8KFxet1Ws9fRhKsheuEf9CXtya_V2phw3yXZM5ovwJSeG/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyA_dwJqPUfLdImAia2UjbTkwabukPxBg6vUXU8hz9NMtntYjccbKhZe_4jpUhpzhFa/exec';
 
 // ⚠️ 여기에 친구의 구글 시트 CSV 주소를 넣어주세요!
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
