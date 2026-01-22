@@ -4,11 +4,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// 아이콘 불러오기
+// ✅ 아이콘 추가 불러오기
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ Apps Script 주소 (실시간 데이터 연동)
+// Apps Script 주소 (실시간 데이터 연동)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -51,9 +51,9 @@ export default function Home() {
     });
   };
 
-  // 전체 필터링된 결과 (개수 확인용)
   const allFiltered = getFilteredItems(treasures, filterType);
 
+  // 카드 뱃지 스타일
   const getTypeBadgeStyle = (type: string) => {
     switch (type?.trim()) {
       case 'WEB_TOOL': return 'bg-blue-50 text-blue-600 border-blue-100';
@@ -64,6 +64,7 @@ export default function Home() {
     }
   };
 
+  // 필터 버튼 아이콘
   const getFilterIcon = (type: string) => {
     switch (type) {
       case 'ALL': return <FiLayers />;
@@ -75,6 +76,7 @@ export default function Home() {
     }
   };
 
+  // 필터 버튼 라벨
   const getFilterLabel = (type: string) => {
     switch (type) {
       case 'ALL': return 'All Assets';
@@ -86,7 +88,31 @@ export default function Home() {
     }
   };
 
-  // ✨ [핵심] 카드를 그려주는 함수 (코드 중복 방지)
+  // ✨ [NEW] 카테고리별 세련된 아이콘 및 라벨 정의
+  const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element }> = {
+    'WEB_TOOL': {
+      label: 'Online Tools',
+      icon: <FiGrid className="text-blue-500" size={22} /> // 파란색 계열
+    },
+    'WEBSITE': {
+      label: 'Portals & Sites',
+      icon: <FiGlobe className="text-indigo-500" size={22} /> // 인디고 계열
+    },
+    'DOC': {
+      label: 'Documents',
+      icon: <FiFileText className="text-emerald-500" size={22} /> // 에메랄드 계열
+    },
+    'SOFTWARE': {
+      label: 'Desktop Apps',
+      icon: <FiMonitor className="text-slate-500" size={22} /> // 무채색 계열
+    },
+  };
+
+  // 카테고리 표시 순서 정의
+  const categoryOrder: TreasureType[] = ['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'];
+
+
+  // 카드 렌더링 함수
   const renderCard = (item: Treasure) => (
     <a key={item.id} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
 
@@ -126,14 +152,6 @@ export default function Home() {
       </div>
     </a>
   );
-
-  // ✨ 카테고리 정의 (순서 제어용)
-  const categoryOrder: { type: TreasureType; label: string }[] = [
-    { type: 'WEB_TOOL', label: '🛠️ Online Tools' },
-    { type: 'WEBSITE', label: '🌐 Portals & Sites' },
-    { type: 'DOC', label: '📄 Documents' },
-    { type: 'SOFTWARE', label: '💾 Desktop Apps' },
-  ];
 
   return (
     <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
@@ -206,23 +224,29 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ✨ [핵심] 콘텐츠 리스트 영역 */}
+        {/* 콘텐츠 리스트 영역 */}
         <div className="space-y-16">
 
           {/* 1. 필터가 'ALL'인 경우: 카테고리별로 묶어서 보여줌 */}
           {filterType === 'ALL' && (
             <>
-              {categoryOrder.map((cat) => {
-                const catItems = getFilteredItems(treasures, cat.type);
-                if (catItems.length === 0) return null; // 아이템 없으면 섹션 숨김
+              {categoryOrder.map((type) => {
+                const catItems = getFilteredItems(treasures, type);
+                if (catItems.length === 0) return null;
 
+                // ✨ [NEW] 세련된 카테고리 제목 디자인 적용
                 return (
-                  <section key={cat.type} className="animate-fade-in-up">
-                    <div className="flex items-center gap-3 mb-6 pb-2 border-b border-slate-100">
-                      <h2 className="text-lg font-bold text-slate-700 flex items-center gap-2">
-                        {cat.label}
-                        <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-normal">{catItems.length}</span>
+                  <section key={type} className="animate-fade-in-up">
+                    <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
+                      {/* 아이콘과 라벨 */}
+                      <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                        {categoryConfig[type].icon}
+                        {categoryConfig[type].label}
                       </h2>
+                      {/* 개수 뱃지 */}
+                      <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200">
+                        {catItems.length}
+                      </span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {catItems.map(renderCard)}
