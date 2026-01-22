@@ -4,13 +4,13 @@
 import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { useRouter } from 'next/navigation';
-// ✨ 아이콘 추가 (수정 연필 아이콘, 취소 아이콘)
+// ✨ 아이콘 사용
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
-// ✅ [수정 완료] 방금 주신 새로운 Apps Script 주소로 교체했습니다!
+// ✅ [확인됨] 수정 기능이 포함된 최신 Apps Script 주소
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
-// ⚠️ 여기에 친구의 구글 시트 CSV 주소를 넣어주세요! (기존 주소 유지)
+// ✅ [확인됨] 친구의 구글 시트 CSV 주소 (변경 금지)
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 interface Asset {
@@ -29,7 +29,7 @@ export default function AdminPage() {
     // 폼 입력 상태
     const [form, setForm] = useState({ title: '', description: '', type: 'WEB_TOOL', url: '' });
 
-    // ✨ 수정 모드 상태 관리 (null이면 등록 모드, 값이 있으면 수정 모드)
+    // 수정 모드 상태 (null이면 등록 모드, 값이 있으면 수정 모드)
     const [editingId, setEditingId] = useState<string | null>(null);
 
     // 1. 관리자 체크 및 데이터 로딩
@@ -50,7 +50,6 @@ export default function AdminPage() {
             download: true,
             header: true,
             complete: (results) => {
-                // ID가 있는 데이터만 필터링 (빈 줄 제거)
                 const validData = (results.data as Asset[]).filter(item => item.id);
                 // 최신순 정렬 (ID가 타임스탬프니까 역순 정렬)
                 setAssets(validData.sort((a, b) => Number(b.id) - Number(a.id)));
@@ -65,13 +64,12 @@ export default function AdminPage() {
         setLoading(true);
 
         try {
-            // 수정 모드이면 action: 'UPDATE', 등록 모드이면 action: 'CREATE' (기본값)
+            // 수정 모드이면 action: 'UPDATE', 등록 모드이면 action: 'CREATE'
             const actionType = editingId ? 'UPDATE' : 'CREATE';
 
-            // 보낼 데이터 준비
             const payload = {
                 action: actionType,
-                id: editingId, // 수정일 때만 사용됨
+                id: editingId,
                 ...form
             };
 
@@ -87,8 +85,7 @@ export default function AdminPage() {
             setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' }); // 폼 초기화
             setEditingId(null); // 수정 모드 해제
 
-            // 구글 시트 반영 시간 고려하여 1.5초 뒤 새로고침
-            setTimeout(fetchAssets, 1500);
+            setTimeout(fetchAssets, 1500); // 1.5초 뒤 목록 새로고침
 
         } catch (error) {
             console.error(error);
@@ -119,20 +116,19 @@ export default function AdminPage() {
         }
     };
 
-    // 5. ✨ 수정 버튼 클릭 시 폼에 데이터 채우기
+    // 5. 수정 버튼 클릭 시 폼 채우기
     const handleEditClick = (item: Asset) => {
-        setEditingId(item.id); // 수정 모드 켜기
+        setEditingId(item.id);
         setForm({
             title: item.title,
             description: item.description,
             type: item.type,
             url: item.url
         });
-        // 스크롤을 맨 위로 올려서 폼을 보여줌
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 6. ✨ 수정 취소 (폼 초기화)
+    // 6. 수정 취소
     const handleCancelEdit = () => {
         setEditingId(null);
         setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
@@ -151,7 +147,15 @@ export default function AdminPage() {
                     <button onClick={() => router.push('/')} className="flex items-center gap-2 bg-white border border-slate-300 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-bold shadow-sm transition-all">
                         <FiHome /> 메인으로
                     </button>
-                    <button onClick={() => { sessionStorage.removeItem('isAdmin'); router.push('/login'); }} className="bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-200 transition-all border border-rose-200">
+                    {/* ✅ [수정됨] 로그아웃 시 메인 페이지('/')로 이동하도록 변경! */}
+                    <button
+                        onClick={() => {
+                            sessionStorage.removeItem('isAdmin');
+                            router.push('/');
+                            alert('안녕히 가세요! 👋');
+                        }}
+                        className="bg-rose-100 text-rose-600 px-4 py-2 rounded-lg text-sm font-bold hover:bg-rose-200 transition-all border border-rose-200"
+                    >
                         로그아웃
                     </button>
                 </div>
@@ -159,21 +163,18 @@ export default function AdminPage() {
 
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
 
-                {/* ✨ [왼쪽] 입력 및 수정 폼 (2칸 차지) */}
+                {/* [왼쪽] 입력 및 수정 폼 */}
                 <div className="lg:col-span-2">
                     <div className={`bg-white rounded-2xl shadow-xl border p-6 sticky top-8 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
 
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                             {editingId ? (
-                                <>
-                                    <FiEdit2 className="text-indigo-600" /> 자산 내용 수정
-                                </>
+                                <> <FiEdit2 className="text-indigo-600" /> 자산 내용 수정 </>
                             ) : (
                                 '새 자산 등록'
                             )}
                         </h2>
 
-                        {/* 구글 드라이브 안내 */}
                         {!editingId && (
                             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
                                 <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps (설치파일) 저장소:</p>
@@ -230,7 +231,6 @@ export default function AdminPage() {
                                 </div>
                             </div>
 
-                            {/* 버튼 영역 */}
                             <div className="pt-4 flex gap-2">
                                 {editingId ? (
                                     <>
@@ -259,7 +259,7 @@ export default function AdminPage() {
                     </div>
                 </div>
 
-                {/* [오른쪽] 등록된 자산 목록 (3칸 차지) */}
+                {/* [오른쪽] 등록된 자산 목록 */}
                 <div className="lg:col-span-3">
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[600px]">
                         <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
@@ -273,13 +273,11 @@ export default function AdminPage() {
                             {assets.map((item) => (
                                 <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
 
-                                    {/* 자산 정보 (클릭 시 수정 모드 활성화) */}
                                     <div className="flex-1 cursor-pointer" onClick={() => handleEditClick(item)}>
                                         <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>
                                             {item.title}
                                         </h3>
 
-                                        {/* 배지 및 링크 */}
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 uppercase">
                                                 {item.type}
@@ -291,7 +289,6 @@ export default function AdminPage() {
 
                                         <p className="text-sm text-slate-500 line-clamp-1">{item.description}</p>
 
-                                        {/* 수정 중이라는 표시 */}
                                         {editingId === item.id && (
                                             <span className="inline-block mt-2 text-[10px] font-bold text-indigo-500 animate-pulse">
                                                 Currently Editing...
@@ -299,7 +296,6 @@ export default function AdminPage() {
                                         )}
                                     </div>
 
-                                    {/* 액션 버튼들 (수정/삭제) */}
                                     <div className="flex flex-col gap-2 ml-4">
                                         <button
                                             onClick={() => handleDelete(item.id)}
