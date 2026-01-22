@@ -5,11 +5,11 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// ✅ [추가] FiZap 아이콘 임포트
-import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap } from 'react-icons/fi';
+// 아이콘 불러오기
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiInfo } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ 기존 구글 시트 주소 유지
+// ✅ [유지] 친구의 구글 시트 주소
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -90,6 +90,7 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
+            {/* ✅ [유지] 팀명 */}
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
             </span>
@@ -151,8 +152,23 @@ export default function Home() {
         {/* 카드 리스트 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((item, idx) => (
-            <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500"></div>
+            <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
+
+              {/* ✨ [New] 호버 시 나타나는 설명 말풍선 (Tooltip) */}
+              {/* 평소에는 hidden, group-hover일 때 나타남 / 서서히 올라오는 애니메이션 */}
+              <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
+                <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
+                  {/* 말풍선 꼬리 (화살표) */}
+                  <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
+                  {/* 설명 텍스트 (긴 글도 잘 보이게) */}
+                  <p className="leading-relaxed font-medium text-slate-200">
+                    {item.description || "설명이 없습니다."}
+                  </p>
+                </div>
+              </div>
+
+              {/* 상단 장식 바 */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500 rounded-t-2xl"></div>
 
               <div className="flex justify-between items-start mb-4 mt-1">
                 <span className={`text-[10px] px-2.5 py-1 rounded-full border font-bold tracking-wider uppercase flex items-center gap-1.5 ${getTypeBadgeStyle(item.type)}`}>
@@ -164,12 +180,18 @@ export default function Home() {
                 </div>
               </div>
 
-              <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{item.title}</h3>
-              <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed">{item.description}</p>
+              <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors relative z-10">
+                {item.title}
+              </h3>
+
+              {/* 기존 설명 (호버 시 말풍선이 뜨면 살짝 흐려지게 처리) */}
+              <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed group-hover:opacity-10 transition-opacity duration-300">
+                {item.description}
+              </p>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
-                {/* ✅ [수정] 세련된 디자인의 '바로가기' 버튼으로 변경 */}
-                <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none">
+                {/* ✅ [유지] 번개 모양 바로가기 버튼 */}
+                <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none relative z-20">
                   <FiZap className="text-indigo-500 text-sm transition-colors group-hover/btn:text-white" />
                   바로가기
                 </span>
@@ -185,6 +207,7 @@ export default function Home() {
           )}
         </div>
 
+        {/* ✅ [유지] 푸터 팀명 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
           © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
