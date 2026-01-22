@@ -8,7 +8,7 @@ import { useRouter } from 'next/navigation';
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ [변경됨] CSV 대신 Apps Script 주소 사용 (실시간 연동!)
+// ✅ Apps Script 주소 (실시간 연동 유지)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -28,17 +28,14 @@ export default function Home() {
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
 
-    // 2. 데이터 가져오기 (실시간 Apps Script 요청)
+    // 2. 데이터 가져오기 (실시간)
     fetchTreasures();
   }, []);
 
-  // ✅ [새로운 기능] Apps Script에서 직접 데이터 가져오기
   const fetchTreasures = async () => {
     try {
       const res = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
-
-      // 최신순 정렬 (ID 기준 역순)
       const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
       setTreasures(sortedData);
     } catch (error) {
@@ -88,7 +85,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
 
-      {/* 히어로 섹션 */}
+      {/* 히어로 섹션 (배경 이미지 영역) */}
       <div className="relative w-full h-[320px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
         <div
           className="absolute inset-0 opacity-40 bg-cover bg-center"
@@ -98,7 +95,6 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
-            {/* ✅ 팀명 유지 */}
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
             </span>
@@ -128,8 +124,12 @@ export default function Home() {
       {/* 메인 콘텐츠 영역 */}
       <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
 
-        {/* 검색 및 필터 */}
-        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5">
+        {/* ✨ [수정됨] 검색 및 필터 박스 (Sticky 적용!) 
+            sticky: 스크롤 시 고정됨
+            top-6: 화면 위에서 조금 떨어져서 고정됨
+            z-40: 카드들보다 위에 보이게 함
+        */}
+        <div className="sticky top-6 z-40 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5 transition-all duration-300">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
             <div className="relative w-full md:w-96 group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
@@ -162,7 +162,7 @@ export default function Home() {
           {filtered.map((item, idx) => (
             <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
 
-              {/* ✨ [유지] 호버 시 나타나는 설명 말풍선 (Tooltip) */}
+              {/* 말풍선 설명 */}
               <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
                 <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
                   <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
@@ -189,11 +189,9 @@ export default function Home() {
                 {item.title}
               </h3>
 
-              {/* 빈 공간 (Spacer) - 설명 텍스트 대신 말풍선을 쓰므로 공간만 차지 */}
               <div className="flex-grow"></div>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
-                {/* ✅ [유지] 번개 모양 바로가기 버튼 */}
                 <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none relative z-20">
                   <FiZap className="text-indigo-500 text-sm transition-colors group-hover/btn:text-white" />
                   바로가기
@@ -210,7 +208,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* ✅ 팀명 유지 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
           © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
