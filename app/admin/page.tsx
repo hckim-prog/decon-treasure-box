@@ -7,10 +7,10 @@ import { useRouter } from 'next/navigation';
 // ✨ 아이콘 추가 (수정 연필 아이콘, 취소 아이콘)
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
-// ⚠️ 여기에 친구의 Apps Script 배포 URL을 넣어주세요! (Exec URL)
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyA_dwJqPUfLdImAia2UjbTkwabukPxBg6vUXU8hz9NMtntYjccbKhZe_4jpUhpzhFa/exec';
+// ✅ [수정 완료] 방금 주신 새로운 Apps Script 주소로 교체했습니다!
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
-// ⚠️ 여기에 친구의 구글 시트 CSV 주소를 넣어주세요!
+// ⚠️ 여기에 친구의 구글 시트 CSV 주소를 넣어주세요! (기존 주소 유지)
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 interface Asset {
