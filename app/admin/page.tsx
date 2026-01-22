@@ -3,13 +3,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// Papa Parse 제거됨 (이제 필요 없음!)
+// 아이콘들
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
-// ✅ Apps Script 주소 (배포 후 주소가 바뀌지 않았다면 그대로 사용)
+// ✅ Apps Script 주소 (유지)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
-
-// ❌ CSV 주소는 이제 필요 없습니다! 삭제했습니다.
 
 interface Asset {
     id: string;
@@ -36,14 +34,11 @@ export default function AdminPage() {
         fetchAssets();
     }, [router]);
 
-    // ✅ [변경됨] CSV 파싱 대신 Apps Script에서 직접 가져오기!
+    // 실시간 데이터 조회 (Apps Script)
     const fetchAssets = async () => {
         try {
-            // 브라우저 캐시 방지를 위해 타임스탬프 추가 불필요 (Apps Script가 실시간 처리)
             const res = await fetch(APPS_SCRIPT_URL);
             const data = await res.json();
-
-            // 최신순 정렬
             const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
             setAssets(sortedData);
         } catch (error) {
@@ -51,6 +46,7 @@ export default function AdminPage() {
         }
     };
 
+    // 등록 및 수정
     const handleSubmit = async () => {
         if (!form.title || !form.url) return alert('제목과 URL은 필수입니다!');
         setLoading(true);
@@ -69,8 +65,6 @@ export default function AdminPage() {
             alert(editingId ? '수정되었습니다!' : '등록되었습니다!');
             setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
             setEditingId(null);
-
-            // ✅ 실시간이니까 1.5초 기다릴 필요 없이 바로 새로고침!
             fetchAssets();
 
         } catch (error) {
@@ -81,6 +75,7 @@ export default function AdminPage() {
         }
     };
 
+    // 삭제
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
         setLoading(true);
@@ -92,7 +87,7 @@ export default function AdminPage() {
                 body: JSON.stringify({ action: 'DELETE', id: id }),
             });
             alert('삭제되었습니다.');
-            fetchAssets(); // 즉시 새로고침
+            fetchAssets();
         } catch (error) {
             alert('오류 발생');
         } finally {
@@ -144,10 +139,18 @@ export default function AdminPage() {
                             {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
 
+                        {/* ✅ [수정 완료] 구글 드라이브 링크 연결 (새 창 열기 적용) */}
                         {!editingId && (
                             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
                                 <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
-                                <a href="#" className="text-xs text-indigo-500 hover:underline">구글 드라이브 바로가기 ↗</a>
+                                <a
+                                    href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
+                                >
+                                    구글 드라이브 바로가기 ↗
+                                </a>
                             </div>
                         )}
 
