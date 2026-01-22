@@ -5,8 +5,11 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+// ✨ 아이콘 불러오기 (react-icons)
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud } from 'react-icons/fi';
+import { RiAdminLine } from 'react-icons/ri';
 
-// ⚠️ [중요] 아까 사용하던 구글 시트 '읽기 전용(CSV)' 주소를 여기에 다시 넣어주세요!
+// ✅ [수정 완료] 친구가 알려준 진짜 구글 시트 주소 적용!
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -19,16 +22,14 @@ export default function Home() {
   const [treasures, setTreasures] = useState<Treasure[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TreasureType | 'ALL'>('ALL');
-
-  // 관리자 여부 확인
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // 1. 관리자 로그인 여부 체크
+    // 1. 관리자 여부 확인
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
 
-    // 2. 엑셀 데이터 가져오기 (캐시 무시 기능 포함)
+    // 2. 엑셀 데이터 가져오기 (캐시 방지 시간 추가)
     const timeStamp = new Date().getTime();
     Papa.parse(`${GOOGLE_SHEET_CSV_URL}&t=${timeStamp}`, {
       download: true,
@@ -46,96 +47,158 @@ export default function Home() {
     return matchesSearch && matchesType;
   });
 
-  // ⭐ [변경점 1] 카드 위에 붙는 배지 색상
-  const getBadgeColor = (type: string) => {
+  // 🎨 배지 스타일 (아이콘과 색상 매칭)
+  const getTypeBadgeStyle = (type: string) => {
     switch (type?.trim()) {
-      case 'WEB_TOOL': return 'bg-blue-600';
-      case 'WEBSITE': return 'bg-indigo-600';
-      case 'SOFTWARE': return 'bg-slate-700';
-      case 'DOC': return 'bg-emerald-600';
-      default: return 'bg-gray-500';
+      case 'WEB_TOOL': return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'WEBSITE': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+      case 'SOFTWARE': return 'bg-slate-100 text-slate-600 border-slate-200';
+      case 'DOC': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      default: return 'bg-gray-50 text-gray-500 border-gray-200';
     }
   };
 
-  // ⭐ [변경점 2] 필터 버튼에 표시될 멋진 비즈니스 용어들!
+  // 🎨 필터 버튼용 아이콘
+  const getFilterIcon = (type: string) => {
+    switch (type) {
+      case 'ALL': return <FiLayers />;
+      case 'WEB_TOOL': return <FiGrid />;
+      case 'WEBSITE': return <FiGlobe />;
+      case 'DOC': return <FiFileText />;
+      case 'SOFTWARE': return <FiMonitor />;
+      default: return <FiLayers />;
+    }
+  };
+
+  // 🎨 화면에 보여질 멋진 이름 (비즈니스 용어)
   const getFilterLabel = (type: string) => {
     switch (type) {
-      case 'ALL': return 'ALL ASSETS';          // 전체 보기
-      case 'WEB_TOOL': return 'ONLINE TOOLS';   // 온라인 도구
-      case 'WEBSITE': return 'PORTALS & SITES'; // 포털 및 사이트
-      case 'DOC': return 'DOCUMENTS';           // 문서 자료
-      case 'SOFTWARE': return 'DESKTOP APPS';   // 설치형 프로그램
+      case 'ALL': return 'All Assets';
+      case 'WEB_TOOL': return 'Online Tools';
+      case 'WEBSITE': return 'Portals';
+      case 'DOC': return 'Documents';
+      case 'SOFTWARE': return 'Desktop Apps';
       default: return type;
     }
   };
 
   return (
-    <main className="min-h-screen bg-slate-50">
-      <header className="bg-slate-900 text-white py-6 px-6 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">DECON Digital Hub</h1>
-          <p className="text-slate-400 text-sm mt-1">디지털 전환 TF팀 자산 라이브러리</p>
+    <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+
+      {/* ✨ [1] 히어로 섹션 (상단 배경 이미지 영역) */}
+      <div className="relative w-full h-[320px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
+        {/* 배경 이미지 */}
+        <div
+          className="absolute inset-0 opacity-40 bg-cover bg-center"
+          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')" }}
+        ></div>
+        {/* 그라데이션 오버레이 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90"></div>
+
+        {/* 텍스트 내용 */}
+        <div className="relative z-10 max-w-2xl text-white mt-4">
+          <div className="flex justify-center mb-4">
+            <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
+              Digital Transformation Team
+            </span>
+          </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white drop-shadow-2xl">
+            DECON <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">Digital Hub</span>
+          </h1>
+          <p className="text-slate-300 text-sm md:text-base font-medium max-w-lg mx-auto leading-relaxed opacity-90">
+            업무 효율화를 위한 모든 디지털 자산을 한곳에.<br />
+            필요한 도구와 문서를 빠르고 쉽게 찾아보세요.
+          </p>
         </div>
 
-        {/* 스마트 버튼: 관리자면 '입장', 아니면 '로그인' */}
-        {isAdmin ? (
-          <button
-            onClick={() => router.push('/admin')}
-            className="flex items-center gap-2 bg-indigo-600 border border-indigo-500 text-white px-4 py-2 rounded hover:bg-indigo-500 transition-colors font-bold text-sm"
-          >
-            👑 관리자 페이지 입장
-          </button>
-        ) : (
-          <Link href="/login" className="text-xs text-slate-400 border border-slate-700 px-3 py-1 rounded hover:bg-slate-800 transition-colors">
-            Authorized Personnel Only
-          </Link>
-        )}
-      </header>
+        {/* 관리자 버튼 (오른쪽 상단 고정) */}
+        <div className="absolute top-6 right-6 z-20">
+          {isAdmin ? (
+            <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-indigo-500/30">
+              <RiAdminLine className="text-lg" /> Admin Dashboard
+            </button>
+          ) : (
+            <Link href="/login" className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/40 backdrop-blur-sm border border-white/10">
+              <RiAdminLine /> Authorized Only
+            </Link>
+          )}
+        </div>
+      </div>
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
-        {/* 검색 및 필터 영역 */}
-        <div className="flex flex-col md:flex-row gap-6 justify-between mb-10 items-end border-b border-slate-200 pb-6">
-          <div className="w-full md:w-96">
-            <label className="block text-xs font-bold text-slate-500 uppercase mb-2 tracking-wider">Search Assets</label>
-            <input
-              type="text" placeholder="자산명, 키워드 검색..."
-              className="p-3 border rounded-lg w-full shadow-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
+      {/* ✨ [2] 메인 콘텐츠 영역 (검색창이 위로 살짝 겹치게 디자인) */}
+      <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
 
-          {/* 👇 필터 버튼들 (함수를 통해 멋진 이름으로 바뀜) */}
-          <div className="flex gap-2 flex-wrap">
-            {['ALL', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
-              <button key={type} onClick={() => setFilterType(type as any)}
-                className={`px-4 py-2 text-xs font-bold rounded-md transition-all uppercase tracking-wide
-                  ${filterType === type ? 'bg-slate-800 text-white shadow-md' : 'bg-white border text-slate-500 hover:bg-slate-100 hover:text-slate-900'}`}>
-                {getFilterLabel(type)}
-              </button>
-            ))}
+        {/* 검색 및 필터 박스 */}
+        <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5">
+          <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
+            {/* 검색창 */}
+            <div className="relative w-full md:w-96 group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
+                <FiSearch className="text-slate-400" />
+              </div>
+              <input
+                type="text" placeholder="검색어를 입력하세요..."
+                className="pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl w-full text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-400"
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            {/* 필터 버튼들 */}
+            <div className="flex gap-2 flex-wrap justify-center">
+              {['ALL', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
+                <button key={type} onClick={() => setFilterType(type as any)}
+                  className={`flex items-center gap-2 px-4 py-2 text-[11px] font-bold rounded-full transition-all border
+                    ${filterType === type
+                      ? 'bg-slate-800 text-white border-slate-800 shadow-md transform scale-105'
+                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700'}`}>
+                  {getFilterIcon(type)}
+                  {getFilterLabel(type)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* 카드 리스트 영역 */}
+        {/* ✨ [3] 카드 리스트 (디자인 업그레이드) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((item, idx) => (
-            <a key={idx} href={item.url} target="_blank" className="bg-white p-6 rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all border border-slate-200 group flex flex-col h-full">
-              <div className="flex justify-between items-start mb-4">
-                {/* 배지 이름은 데이터베이스 값(WEB_TOOL 등)을 공백으로 바꿔서 보여줌 */}
-                <span className={`text-[10px] text-white px-2 py-1 rounded font-bold tracking-wider ${getBadgeColor(item.type)}`}>
-                  {item.type.replace('_', ' ')}
+            <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden">
+              {/* 상단 장식 바 (Hover시 색상 변경) */}
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500"></div>
+
+              <div className="flex justify-between items-start mb-4 mt-1">
+                <span className={`text-[10px] px-2.5 py-1 rounded-full border font-bold tracking-wider uppercase flex items-center gap-1.5 ${getTypeBadgeStyle(item.type)}`}>
+                  {item.type === 'SOFTWARE' ? <FiDownloadCloud /> : <FiExternalLink />}
+                  {item.type === 'WEB_TOOL' ? 'TOOL' : item.type.replace('_', ' ')}
                 </span>
-                <span className="text-slate-300 group-hover:text-indigo-500 transition-colors">↗</span>
+                <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-300 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-colors">
+                  <FiExternalLink className="text-sm" />
+                </div>
               </div>
-              <h3 className="font-bold text-lg text-slate-900 mb-2 leading-tight">{item.title}</h3>
-              <p className="text-sm text-slate-500 line-clamp-2 flex-grow">{item.description}</p>
-              <div className="mt-5 pt-4 border-t border-slate-50 text-right">
-                <span className="text-xs font-bold text-indigo-600 group-hover:underline">바로가기 &rarr;</span>
+
+              <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">{item.title}</h3>
+              <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed">{item.description}</p>
+
+              <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
+                <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 flex items-center gap-1 transition-colors">
+                  리소스 열기 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                </span>
               </div>
             </a>
           ))}
-          {filtered.length === 0 && <div className="col-span-full text-center py-20 text-slate-400 bg-white rounded-lg border border-dashed border-slate-300">등록된 자산이 없습니다.</div>}
+
+          {filtered.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-24 text-slate-400 bg-white/50 rounded-2xl border border-dashed border-slate-200">
+              <FiSearch className="text-4xl mb-4 text-slate-300" />
+              <p className="text-sm">검색 결과가 없습니다.</p>
+            </div>
+          )}
         </div>
+
+        {/* 푸터 */}
+        <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
+          © DECON Digital Transformation Team. All rights reserved.
+        </footer>
       </div>
     </main>
   );
