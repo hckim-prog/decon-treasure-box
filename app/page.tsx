@@ -89,8 +89,9 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
+            {/* ✅ [수정] 상단 배지 팀명 변경 */}
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
-              Digital Transformation Team
+              Digital Contents Transformation Team
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white drop-shadow-2xl">
@@ -167,7 +168,6 @@ export default function Home() {
               <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed">{item.description}</p>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
-                {/* ✅ 👇 여기가 수정된 부분입니다! 👇 */}
                 <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 flex items-center gap-1 transition-colors">
                   바로가기 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
                 </span>
@@ -183,8 +183,9 @@ export default function Home() {
           )}
         </div>
 
+        {/* ✅ [수정] 푸터 팀명 변경 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
-          © DECON Digital Transformation Team. All rights reserved.
+          © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
       </div>
     </main>
