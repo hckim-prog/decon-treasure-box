@@ -130,7 +130,7 @@ export default function Home() {
               <h3 className="font-bold text-lg text-slate-900 mb-2 leading-tight">{item.title}</h3>
               <p className="text-sm text-slate-500 line-clamp-2 flex-grow">{item.description}</p>
               <div className="mt-5 pt-4 border-t border-slate-50 text-right">
-                <span className="text-xs font-bold text-indigo-600 group-hover:underline">Access Resource &rarr;</span>
+                <span className="text-xs font-bold text-indigo-600 group-hover:underline">바로가기 &rarr;</span>
               </div>
             </a>
           ))}
