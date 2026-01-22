@@ -117,6 +117,19 @@ export default function AdminPage() {
                     {/* 왼쪽: 등록 폼 */}
                     <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-200 h-fit">
                         <h2 className="text-lg font-bold mb-4 text-slate-800 border-b pb-2">새 자산 등록</h2>
+
+                        {/* 📂 구글 드라이브 링크 추가 */}
+                        <div className="mb-4 bg-indigo-50 p-3 rounded text-xs text-indigo-700 font-bold">
+                            <span className="block mb-1">📂 Desktop Apps (설치파일) 저장소:</span>
+                            <a
+                                href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR"
+                                target="_blank"
+                                className="underline break-all hover:text-indigo-900"
+                            >
+                                구글 드라이브 바로가기 ↗
+                            </a>
+                        </div>
+
                         <form onSubmit={handleCreate} className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
