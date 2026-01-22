@@ -5,11 +5,10 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-// ✨ 아이콘 불러오기 (react-icons)
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ [수정 완료] 친구가 알려준 진짜 구글 시트 주소 적용!
+// ✅ 기존 구글 시트 주소 유지
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -25,11 +24,9 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    // 1. 관리자 여부 확인
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
 
-    // 2. 엑셀 데이터 가져오기 (캐시 방지 시간 추가)
     const timeStamp = new Date().getTime();
     Papa.parse(`${GOOGLE_SHEET_CSV_URL}&t=${timeStamp}`, {
       download: true,
@@ -47,7 +44,6 @@ export default function Home() {
     return matchesSearch && matchesType;
   });
 
-  // 🎨 배지 스타일 (아이콘과 색상 매칭)
   const getTypeBadgeStyle = (type: string) => {
     switch (type?.trim()) {
       case 'WEB_TOOL': return 'bg-blue-50 text-blue-600 border-blue-100';
@@ -58,7 +54,6 @@ export default function Home() {
     }
   };
 
-  // 🎨 필터 버튼용 아이콘
   const getFilterIcon = (type: string) => {
     switch (type) {
       case 'ALL': return <FiLayers />;
@@ -70,7 +65,6 @@ export default function Home() {
     }
   };
 
-  // 🎨 화면에 보여질 멋진 이름 (비즈니스 용어)
   const getFilterLabel = (type: string) => {
     switch (type) {
       case 'ALL': return 'All Assets';
@@ -85,17 +79,14 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
 
-      {/* ✨ [1] 히어로 섹션 (상단 배경 이미지 영역) */}
+      {/* 히어로 섹션 */}
       <div className="relative w-full h-[320px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
-        {/* 배경 이미지 */}
         <div
           className="absolute inset-0 opacity-40 bg-cover bg-center"
           style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')" }}
         ></div>
-        {/* 그라데이션 오버레이 */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90"></div>
 
-        {/* 텍스트 내용 */}
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
@@ -111,7 +102,6 @@ export default function Home() {
           </p>
         </div>
 
-        {/* 관리자 버튼 (오른쪽 상단 고정) */}
         <div className="absolute top-6 right-6 z-20">
           {isAdmin ? (
             <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-indigo-500/30">
@@ -125,13 +115,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* ✨ [2] 메인 콘텐츠 영역 (검색창이 위로 살짝 겹치게 디자인) */}
+      {/* 메인 콘텐츠 영역 */}
       <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
 
-        {/* 검색 및 필터 박스 */}
+        {/* 검색 및 필터 */}
         <div className="bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5">
           <div className="flex flex-col md:flex-row gap-6 items-center justify-between">
-            {/* 검색창 */}
             <div className="relative w-full md:w-96 group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
                 <FiSearch className="text-slate-400" />
@@ -143,7 +132,6 @@ export default function Home() {
               />
             </div>
 
-            {/* 필터 버튼들 */}
             <div className="flex gap-2 flex-wrap justify-center">
               {['ALL', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
                 <button key={type} onClick={() => setFilterType(type as any)}
@@ -159,11 +147,10 @@ export default function Home() {
           </div>
         </div>
 
-        {/* ✨ [3] 카드 리스트 (디자인 업그레이드) */}
+        {/* 카드 리스트 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filtered.map((item, idx) => (
             <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-hidden">
-              {/* 상단 장식 바 (Hover시 색상 변경) */}
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500"></div>
 
               <div className="flex justify-between items-start mb-4 mt-1">
@@ -180,8 +167,9 @@ export default function Home() {
               <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed">{item.description}</p>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
+                {/* ✅ 👇 여기가 수정된 부분입니다! 👇 */}
                 <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 flex items-center gap-1 transition-colors">
-                  리소스 열기 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                  바로가기 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
                 </span>
               </div>
             </a>
@@ -195,7 +183,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* 푸터 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
           © DECON Digital Transformation Team. All rights reserved.
         </footer>
