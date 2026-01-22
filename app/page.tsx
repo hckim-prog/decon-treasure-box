@@ -5,7 +5,8 @@ import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud } from 'react-icons/fi';
+// ✅ [추가] FiZap 아이콘 임포트
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
 // ✅ 기존 구글 시트 주소 유지
@@ -89,7 +90,6 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
-            {/* ✅ [수정] 상단 배지 팀명 변경 */}
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
             </span>
@@ -168,8 +168,10 @@ export default function Home() {
               <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed">{item.description}</p>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
-                <span className="text-xs font-bold text-slate-400 group-hover:text-indigo-600 flex items-center gap-1 transition-colors">
-                  바로가기 <span className="transform group-hover:translate-x-1 transition-transform">→</span>
+                {/* ✅ [수정] 세련된 디자인의 '바로가기' 버튼으로 변경 */}
+                <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none">
+                  <FiZap className="text-indigo-500 text-sm transition-colors group-hover/btn:text-white" />
+                  바로가기
                 </span>
               </div>
             </a>
@@ -183,7 +185,6 @@ export default function Home() {
           )}
         </div>
 
-        {/* ✅ [수정] 푸터 팀명 변경 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
           © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
