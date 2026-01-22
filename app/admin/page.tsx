@@ -2,16 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Papa from 'papaparse';
 import { useRouter } from 'next/navigation';
-// ✨ 아이콘 사용
+// Papa Parse 제거됨 (이제 필요 없음!)
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
-// ✅ [확인됨] 수정 기능이 포함된 최신 Apps Script 주소
+// ✅ Apps Script 주소 (배포 후 주소가 바뀌지 않았다면 그대로 사용)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
-// ✅ [확인됨] 친구의 구글 시트 CSV 주소 (변경 금지)
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
+// ❌ CSV 주소는 이제 필요 없습니다! 삭제했습니다.
 
 interface Asset {
     id: string;
@@ -25,14 +23,9 @@ export default function AdminPage() {
     const router = useRouter();
     const [assets, setAssets] = useState<Asset[]>([]);
     const [loading, setLoading] = useState(false);
-
-    // 폼 입력 상태
     const [form, setForm] = useState({ title: '', description: '', type: 'WEB_TOOL', url: '' });
-
-    // 수정 모드 상태 (null이면 등록 모드, 값이 있으면 수정 모드)
     const [editingId, setEditingId] = useState<string | null>(null);
 
-    // 1. 관리자 체크 및 데이터 로딩
     useEffect(() => {
         const checkAdmin = sessionStorage.getItem('isAdmin');
         if (checkAdmin !== 'true') {
@@ -43,35 +36,28 @@ export default function AdminPage() {
         fetchAssets();
     }, [router]);
 
-    // 2. 자산 목록 불러오기 (CSV 파싱)
-    const fetchAssets = () => {
-        const timeStamp = new Date().getTime();
-        Papa.parse(`${GOOGLE_SHEET_CSV_URL}&t=${timeStamp}`, {
-            download: true,
-            header: true,
-            complete: (results) => {
-                const validData = (results.data as Asset[]).filter(item => item.id);
-                // 최신순 정렬 (ID가 타임스탬프니까 역순 정렬)
-                setAssets(validData.sort((a, b) => Number(b.id) - Number(a.id)));
-            },
-        });
+    // ✅ [변경됨] CSV 파싱 대신 Apps Script에서 직접 가져오기!
+    const fetchAssets = async () => {
+        try {
+            // 브라우저 캐시 방지를 위해 타임스탬프 추가 불필요 (Apps Script가 실시간 처리)
+            const res = await fetch(APPS_SCRIPT_URL);
+            const data = await res.json();
+
+            // 최신순 정렬
+            const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
+            setAssets(sortedData);
+        } catch (error) {
+            console.error("데이터 로딩 실패:", error);
+        }
     };
 
-    // 3. 등록 또는 수정 처리 (Submit)
     const handleSubmit = async () => {
         if (!form.title || !form.url) return alert('제목과 URL은 필수입니다!');
-
         setLoading(true);
 
         try {
-            // 수정 모드이면 action: 'UPDATE', 등록 모드이면 action: 'CREATE'
             const actionType = editingId ? 'UPDATE' : 'CREATE';
-
-            const payload = {
-                action: actionType,
-                id: editingId,
-                ...form
-            };
+            const payload = { action: actionType, id: editingId, ...form };
 
             await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
@@ -80,12 +66,12 @@ export default function AdminPage() {
                 body: JSON.stringify(payload),
             });
 
-            // 완료 처리
-            alert(editingId ? '성공적으로 수정되었습니다!' : '새 자산이 등록되었습니다!');
-            setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' }); // 폼 초기화
-            setEditingId(null); // 수정 모드 해제
+            alert(editingId ? '수정되었습니다!' : '등록되었습니다!');
+            setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
+            setEditingId(null);
 
-            setTimeout(fetchAssets, 1500); // 1.5초 뒤 목록 새로고침
+            // ✅ 실시간이니까 1.5초 기다릴 필요 없이 바로 새로고침!
+            fetchAssets();
 
         } catch (error) {
             console.error(error);
@@ -95,10 +81,8 @@ export default function AdminPage() {
         }
     };
 
-    // 4. 삭제 처리
     const handleDelete = async (id: string) => {
-        if (!confirm('정말 삭제하시겠습니까? (복구 불가)')) return;
-
+        if (!confirm('정말 삭제하시겠습니까?')) return;
         setLoading(true);
         try {
             await fetch(APPS_SCRIPT_URL, {
@@ -108,27 +92,20 @@ export default function AdminPage() {
                 body: JSON.stringify({ action: 'DELETE', id: id }),
             });
             alert('삭제되었습니다.');
-            setTimeout(fetchAssets, 1500);
+            fetchAssets(); // 즉시 새로고침
         } catch (error) {
-            alert('삭제 중 오류 발생');
+            alert('오류 발생');
         } finally {
             setLoading(false);
         }
     };
 
-    // 5. 수정 버튼 클릭 시 폼 채우기
     const handleEditClick = (item: Asset) => {
         setEditingId(item.id);
-        setForm({
-            title: item.title,
-            description: item.description,
-            type: item.type,
-            url: item.url
-        });
+        setForm({ title: item.title, description: item.description, type: item.type, url: item.url });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
-    // 6. 수정 취소
     const handleCancelEdit = () => {
         setEditingId(null);
         setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
@@ -136,18 +113,16 @@ export default function AdminPage() {
 
     return (
         <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
-
-            {/* 헤더 영역 */}
+            {/* 헤더 */}
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-                    <p className="text-slate-500 text-sm mt-1">디콘팀 자산 관리자 페이지</p>
+                    <p className="text-slate-500 text-sm mt-1">디콘팀 자산 관리자 페이지 (Real-time)</p>
                 </div>
                 <div className="flex gap-3">
                     <button onClick={() => router.push('/')} className="flex items-center gap-2 bg-white border border-slate-300 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-bold shadow-sm transition-all">
                         <FiHome /> 메인으로
                     </button>
-                    {/* ✅ [수정됨] 로그아웃 시 메인 페이지('/')로 이동하도록 변경! */}
                     <button
                         onClick={() => {
                             sessionStorage.removeItem('isAdmin');
@@ -162,22 +137,16 @@ export default function AdminPage() {
             </div>
 
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
-
-                {/* [왼쪽] 입력 및 수정 폼 */}
+                {/* 입력 폼 */}
                 <div className="lg:col-span-2">
                     <div className={`bg-white rounded-2xl shadow-xl border p-6 sticky top-8 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
-
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            {editingId ? (
-                                <> <FiEdit2 className="text-indigo-600" /> 자산 내용 수정 </>
-                            ) : (
-                                '새 자산 등록'
-                            )}
+                            {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
 
                         {!editingId && (
                             <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
-                                <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps (설치파일) 저장소:</p>
+                                <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
                                 <a href="#" className="text-xs text-indigo-500 hover:underline">구글 드라이브 바로가기 ↗</a>
                             </div>
                         )}
@@ -185,81 +154,42 @@ export default function AdminPage() {
                         <div className="space-y-4">
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
-                                <input
-                                    type="text"
-                                    value={form.title}
-                                    onChange={e => setForm({ ...form, title: e.target.value })}
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all"
-                                    placeholder="예: 이미지 배경 제거 툴"
-                                />
+                                <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="제목 입력" />
                             </div>
-
                             <div>
                                 <label className="block text-xs font-bold text-slate-500 mb-1">설명</label>
-                                <textarea
-                                    rows={3}
-                                    value={form.description}
-                                    onChange={e => setForm({ ...form, description: e.target.value })}
-                                    className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all resize-none"
-                                    placeholder="이 자산에 대한 간단한 설명을 입력하세요."
-                                />
+                                <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none" placeholder="설명 입력" />
                             </div>
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">유형</label>
-                                    <select
-                                        value={form.type}
-                                        onChange={e => setForm({ ...form, type: e.target.value })}
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
-                                    >
-                                        <option value="WEB_TOOL">ONLINE TOOLS (온라인 도구)</option>
-                                        <option value="WEBSITE">PORTALS (포털/사이트)</option>
-                                        <option value="DOC">DOCUMENTS (문서/자료)</option>
-                                        <option value="SOFTWARE">DESKTOP APPS (PC설치용)</option>
+                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                        <option value="WEB_TOOL">ONLINE TOOLS</option>
+                                        <option value="WEBSITE">PORTALS</option>
+                                        <option value="DOC">DOCUMENTS</option>
+                                        <option value="SOFTWARE">DESKTOP APPS</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">URL (링크)</label>
-                                    <input
-                                        type="text"
-                                        value={form.url}
-                                        onChange={e => setForm({ ...form, url: e.target.value })}
-                                        className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none"
-                                        placeholder="https://..."
-                                    />
+                                    <label className="block text-xs font-bold text-slate-500 mb-1">URL</label>
+                                    <input type="text" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..." />
                                 </div>
                             </div>
-
                             <div className="pt-4 flex gap-2">
                                 {editingId ? (
                                     <>
-                                        <button
-                                            onClick={handleSubmit}
-                                            disabled={loading}
-                                            className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-sm transition-all flex justify-center items-center gap-2 shadow-lg shadow-indigo-200">
-                                            {loading ? '저장 중...' : <><FiCheck /> 수정사항 저장</>}
-                                        </button>
-                                        <button
-                                            onClick={handleCancelEdit}
-                                            className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-3 rounded-lg font-bold text-sm transition-all">
-                                            취소
-                                        </button>
+                                        <button onClick={handleSubmit} disabled={loading} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg shadow-indigo-200">{loading ? '저장 중...' : <><FiCheck /> 수정사항 저장</>}</button>
+                                        <button onClick={handleCancelEdit} className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-3 rounded-lg font-bold text-sm">취소</button>
                                     </>
                                 ) : (
-                                    <button
-                                        onClick={handleSubmit}
-                                        disabled={loading}
-                                        className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-lg font-bold text-sm transition-all flex justify-center items-center gap-2 shadow-lg">
-                                        {loading ? '처리 중...' : '등록하기'}
-                                    </button>
+                                    <button onClick={handleSubmit} disabled={loading} className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg">{loading ? '처리 중...' : '등록하기'}</button>
                                 )}
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* [오른쪽] 등록된 자산 목록 */}
+                {/* 목록 */}
                 <div className="lg:col-span-3">
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[600px]">
                         <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
@@ -268,63 +198,27 @@ export default function AdminPage() {
                                 <FiRefreshCw /> 새로고침
                             </button>
                         </div>
-
                         <div className="space-y-4">
                             {assets.map((item) => (
                                 <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
-
                                     <div className="flex-1 cursor-pointer" onClick={() => handleEditClick(item)}>
-                                        <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>
-                                            {item.title}
-                                        </h3>
-
+                                        <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>{item.title}</h3>
                                         <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 uppercase">
-                                                {item.type}
-                                            </span>
-                                            <span className="text-xs text-slate-400 truncate max-w-[200px] font-mono">
-                                                {item.url}
-                                            </span>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 uppercase">{item.type}</span>
+                                            <span className="text-xs text-slate-400 truncate max-w-[200px] font-mono">{item.url}</span>
                                         </div>
-
                                         <p className="text-sm text-slate-500 line-clamp-1">{item.description}</p>
-
-                                        {editingId === item.id && (
-                                            <span className="inline-block mt-2 text-[10px] font-bold text-indigo-500 animate-pulse">
-                                                Currently Editing...
-                                            </span>
-                                        )}
                                     </div>
-
                                     <div className="flex flex-col gap-2 ml-4">
-                                        <button
-                                            onClick={() => handleDelete(item.id)}
-                                            className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-all"
-                                            title="삭제"
-                                        >
-                                            <FiTrash2 size={16} />
-                                        </button>
-                                        <button
-                                            onClick={() => handleEditClick(item)}
-                                            className={`p-2 rounded-full transition-all ${editingId === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}
-                                            title="수정"
-                                        >
-                                            <FiEdit2 size={16} />
-                                        </button>
+                                        <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-all"><FiTrash2 size={16} /></button>
+                                        <button onClick={() => handleEditClick(item)} className={`p-2 rounded-full transition-all ${editingId === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}><FiEdit2 size={16} /></button>
                                     </div>
-
                                 </div>
                             ))}
-
-                            {assets.length === 0 && (
-                                <div className="text-center py-20 text-slate-400">
-                                    <p>등록된 자산이 없습니다.</p>
-                                </div>
-                            )}
+                            {assets.length === 0 && <div className="text-center py-20 text-slate-400"><p>등록된 자산이 없습니다.</p></div>}
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

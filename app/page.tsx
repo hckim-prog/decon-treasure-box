@@ -2,15 +2,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Papa from 'papaparse';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 // 아이콘 불러오기
-import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiInfo } from 'react-icons/fi';
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ [유지] 구글 시트 주소
-const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
+// ✅ [변경됨] CSV 대신 Apps Script 주소 사용 (실시간 연동!)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
 interface Treasure {
@@ -25,18 +24,27 @@ export default function Home() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
+    // 1. 관리자 여부 확인
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
 
-    const timeStamp = new Date().getTime();
-    Papa.parse(`${GOOGLE_SHEET_CSV_URL}&t=${timeStamp}`, {
-      download: true,
-      header: true,
-      complete: (results) => {
-        setTreasures(results.data as Treasure[]);
-      },
-    });
+    // 2. 데이터 가져오기 (실시간 Apps Script 요청)
+    fetchTreasures();
   }, []);
+
+  // ✅ [새로운 기능] Apps Script에서 직접 데이터 가져오기
+  const fetchTreasures = async () => {
+    try {
+      const res = await fetch(APPS_SCRIPT_URL);
+      const data = await res.json();
+
+      // 최신순 정렬 (ID 기준 역순)
+      const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
+      setTreasures(sortedData);
+    } catch (error) {
+      console.error("데이터 로딩 실패:", error);
+    }
+  };
 
   const filtered = treasures.filter((item) => {
     if (!item.title) return false;
@@ -90,7 +98,7 @@ export default function Home() {
 
         <div className="relative z-10 max-w-2xl text-white mt-4">
           <div className="flex justify-center mb-4">
-            {/* ✅ [유지] 팀명 */}
+            {/* ✅ 팀명 유지 */}
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
             </span>
@@ -181,7 +189,7 @@ export default function Home() {
                 {item.title}
               </h3>
 
-              {/* ✅ [삭제됨] 빨간 네모 안에 있던 설명글을 없애고 빈 공간(Spacer)으로 대체 */}
+              {/* 빈 공간 (Spacer) - 설명 텍스트 대신 말풍선을 쓰므로 공간만 차지 */}
               <div className="flex-grow"></div>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
@@ -202,7 +210,7 @@ export default function Home() {
           )}
         </div>
 
-        {/* ✅ [유지] 푸터 팀명 */}
+        {/* ✅ 팀명 유지 */}
         <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-20 py-10 border-t border-slate-100">
           © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
