@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiInfo } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ [유지] 친구의 구글 시트 주소
+// ✅ [유지] 구글 시트 주소
 const GOOGLE_SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRQ41AdRgnzLe5cm2fRRZIPk2Bbauiqw5Ec6XPpT1YqZJFkfDvHYtHxwjJfoJqLNvbPCSup0Qa021YO/pub?output=csv';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -154,13 +154,10 @@ export default function Home() {
           {filtered.map((item, idx) => (
             <a key={idx} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
 
-              {/* ✨ [New] 호버 시 나타나는 설명 말풍선 (Tooltip) */}
-              {/* 평소에는 hidden, group-hover일 때 나타남 / 서서히 올라오는 애니메이션 */}
+              {/* ✨ [유지] 호버 시 나타나는 설명 말풍선 (Tooltip) */}
               <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
                 <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
-                  {/* 말풍선 꼬리 (화살표) */}
                   <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
-                  {/* 설명 텍스트 (긴 글도 잘 보이게) */}
                   <p className="leading-relaxed font-medium text-slate-200">
                     {item.description || "설명이 없습니다."}
                   </p>
@@ -184,10 +181,8 @@ export default function Home() {
                 {item.title}
               </h3>
 
-              {/* 기존 설명 (호버 시 말풍선이 뜨면 살짝 흐려지게 처리) */}
-              <p className="text-sm text-slate-500 line-clamp-2 flex-grow leading-relaxed group-hover:opacity-10 transition-opacity duration-300">
-                {item.description}
-              </p>
+              {/* ✅ [삭제됨] 빨간 네모 안에 있던 설명글을 없애고 빈 공간(Spacer)으로 대체 */}
+              <div className="flex-grow"></div>
 
               <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
                 {/* ✅ [유지] 번개 모양 바로가기 버튼 */}
