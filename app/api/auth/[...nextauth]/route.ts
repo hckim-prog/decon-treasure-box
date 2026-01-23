@@ -1,6 +1,6 @@
-// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { google } from "googleapis";
 
 const handler = NextAuth({
     providers: [
@@ -11,15 +11,48 @@ const handler = NextAuth({
     ],
     callbacks: {
         async signIn({ user }) {
-            // 🛑 [수정] 허용할 이메일 도메인 (테스트용: @gmail.com)
-            // 나중에 실제 회사 도메인(예: @samsung.com)으로 바꾸세요.
-            const allowedDomain = "@gmail.com";
+            try {
+                // 1. 로봇 로그인 (스프레드시트 볼 준비)
+                const auth = new google.auth.GoogleAuth({
+                    credentials: {
+                        client_email: process.env.GOOGLE_SERVICE_CLIENT_EMAIL,
+                        private_key: process.env.GOOGLE_SERVICE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+                    },
+                    scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
+                });
 
-            if (user.email?.endsWith(allowedDomain)) {
-                return true;
-            } else {
-                console.log("외부인 차단:", user.email);
-                return false;
+                // 2. 엑셀 책 펼치기
+                const sheets = google.sheets({ version: 'v4', auth });
+
+                // 3. 'Members' 페이지의 A열(이메일 목록) 읽어오기
+                const response = await sheets.spreadsheets.values.get({
+                    spreadsheetId: process.env.GOOGLE_SHEET_ID,
+                    range: 'Members!A:A', // ★ Members 시트가 꼭 있어야 해요!
+                });
+
+                const rows = response.data.values;
+
+                // 명단이 비어있으면 아무도 못 들어오게 막음 (안전장치)
+                if (!rows || rows.length === 0) {
+                    console.log("명단을 불러오지 못했습니다.");
+                    return false;
+                }
+
+                // 4. 가져온 명단을 깔끔하게 정리 (2차원 배열 -> 1차원 리스트)
+                const allowedEmails = rows.flat().map((email) => String(email).trim());
+
+                // 5. 들어오려는 사람이 명단에 있는지 확인
+                if (user.email && allowedEmails.includes(user.email)) {
+                    console.log("환영합니다! 접속 성공:", user.email);
+                    return true; // 문 열어줌 ⭕
+                } else {
+                    console.log("죄송합니다. 명단에 없습니다:", user.email);
+                    return false; // 문 닫음 ❌
+                }
+
+            } catch (error) {
+                console.error("스프레드시트 연결 에러:", error);
+                return false; // 에러나면 문 닫음
             }
         },
     },
