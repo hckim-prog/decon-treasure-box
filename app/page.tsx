@@ -156,15 +156,25 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
 
-      {/* 히어로 섹션 */}
-      <div className="relative w-full h-[320px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
-        <div
-          className="absolute inset-0 opacity-40 bg-cover bg-center"
-          style={{ backgroundImage: "url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2072&auto=format&fit=crop')" }}
-        ></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90"></div>
+      {/* ====================================================================== */}
+      {/* 🔮 히어로 섹션 (수정됨: 이미지 div -> iframe 태그로 교체!) */}
+      {/* ====================================================================== */}
+      <div className="relative w-full h-[400px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
 
-        <div className="relative z-10 max-w-2xl text-white mt-4">
+        {/* 👇 [수정] 기존 배경 이미지 대신 iframe을 넣었습니다. */}
+        <iframe
+          src='https://my.spline.design/boxeshover-bh1N84ii3IdAYEwcUbzpQj5W/'
+          frameBorder='0'
+          width='100%'
+          height='100%'
+          className="absolute inset-0 w-full h-full z-0"
+        ></iframe>
+
+        {/* 배경을 살짝 어둡게 (글씨 잘 보이게) + 마우스 통과 (pointer-events-none) */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90 pointer-events-none z-10"></div>
+
+        {/* 텍스트 내용 (마우스가 뒤쪽 3D에 닿을 수 있게 pointer-events-none 적용) */}
+        <div className="relative z-20 max-w-2xl text-white mt-4 pointer-events-none">
           <div className="flex justify-center mb-4">
             <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
@@ -179,8 +189,8 @@ export default function Home() {
           </p>
         </div>
 
-        {/* ✅ [수정됨] 우측 상단 버튼 영역 (Idea Board 버튼 추가) */}
-        <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
+        {/* 우측 상단 버튼 영역 (클릭해야 하므로 pointer-events-auto 필요) */}
+        <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
 
           {/* 💡 아이디어 게시판 바로가기 버튼 */}
           <Link
@@ -203,7 +213,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 메인 콘텐츠 */}
+      {/* 메인 콘텐츠 (기존 코드 그대로) */}
       <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
 
         {/* Sticky 검색바 */}
@@ -290,4 +300,4 @@ export default function Home() {
       </div>
     </main>
   );
-} 
+}
