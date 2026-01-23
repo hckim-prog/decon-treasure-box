@@ -139,18 +139,34 @@ export default function AdminPage() {
                             {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
 
-                        {/* ✅ [수정 완료] 구글 드라이브 링크 연결 (새 창 열기 적용) */}
+                        {/* ✅ [수정 완료] 상단 링크 영역 (파란색 + 초록색 박스) */}
                         {!editingId && (
-                            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 mb-6">
-                                <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
-                                <a
-                                    href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR"
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
-                                >
-                                    구글 드라이브 바로가기 ↗
-                                </a>
+                            <div className="space-y-3 mb-6">
+                                {/* 1. 기존 파란색 박스 (Desktop Apps) */}
+                                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
+                                    <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
+                                    <a
+                                        href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-indigo-500 hover:underline flex items-center gap-1"
+                                    >
+                                        구글 드라이브 바로가기 ↗
+                                    </a>
+                                </div>
+
+                                {/* 2. ✨ [새로 추가됨] 초록색 박스 (권한 관리) */}
+                                <div className="bg-green-50 border border-green-100 rounded-xl p-4">
+                                    <p className="text-xs text-green-700 font-bold mb-1">🔐 사이트 로그인 계정 관리:</p>
+                                    <a
+                                        href="https://docs.google.com/spreadsheets/d/1rvqMu614aoQ6eRdutoL1rlvUx3IoX6hOBK_gFq0mO4I/edit?gid=446313469#gid=446313469"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-xs text-green-600 hover:underline flex items-center gap-1 font-bold"
+                                    >
+                                        구글 스프레드시트 열기 ↗
+                                    </a>
+                                </div>
                             </div>
                         )}
 
