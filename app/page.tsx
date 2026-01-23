@@ -88,7 +88,7 @@ export default function Home() {
     }
   };
 
-  // ✨ [NEW] 카테고리별 세련된 아이콘 및 라벨 정의
+  // ✨ 카테고리별 세련된 아이콘 및 라벨 정의
   const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element }> = {
     'WEB_TOOL': {
       label: 'Online Tools',
@@ -179,7 +179,18 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="absolute top-6 right-6 z-20">
+        {/* ✅ [수정됨] 우측 상단 버튼 영역 (Idea Board 버튼 추가) */}
+        <div className="absolute top-6 right-6 z-20 flex items-center gap-3">
+
+          {/* 💡 아이디어 게시판 바로가기 버튼 */}
+          <Link
+            href="/ideas"
+            className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-yellow-400/20 hover:scale-105"
+          >
+            💡 Idea Board
+          </Link>
+
+          {/* 기존 관리자/로그인 버튼 */}
           {isAdmin ? (
             <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-indigo-500/30">
               <RiAdminLine className="text-lg" /> Admin Dashboard
@@ -234,7 +245,7 @@ export default function Home() {
                 const catItems = getFilteredItems(treasures, type);
                 if (catItems.length === 0) return null;
 
-                // ✨ [NEW] 세련된 카테고리 제목 디자인 적용
+                // 세련된 카테고리 제목 디자인
                 return (
                   <section key={type} className="animate-fade-in-up">
                     <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
