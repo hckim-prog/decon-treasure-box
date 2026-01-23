@@ -12,7 +12,9 @@ const handler = NextAuth({
     callbacks: {
         async signIn({ user }) {
             try {
+                // -----------------------------------------------------------
                 // 1. 로봇 로그인 (스프레드시트 볼 준비)
+                // -----------------------------------------------------------
                 const auth = new google.auth.GoogleAuth({
                     credentials: {
                         client_email: process.env.GOOGLE_SERVICE_CLIENT_EMAIL,
@@ -21,10 +23,14 @@ const handler = NextAuth({
                     scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
                 });
 
+                // -----------------------------------------------------------
                 // 2. 엑셀 책 펼치기
+                // -----------------------------------------------------------
                 const sheets = google.sheets({ version: 'v4', auth });
 
+                // -----------------------------------------------------------
                 // 3. 'Members' 페이지의 A열(이메일 목록) 읽어오기
+                // -----------------------------------------------------------
                 const response = await sheets.spreadsheets.values.get({
                     spreadsheetId: process.env.GOOGLE_SHEET_ID,
                     range: 'Members!A:A', // ★ Members 시트가 꼭 있어야 해요!
@@ -38,10 +44,13 @@ const handler = NextAuth({
                     return false;
                 }
 
-                // 4. 가져온 명단을 깔끔하게 정리 (2차원 배열 -> 1차원 리스트)
+                // -----------------------------------------------------------
+                // 4. 명단 대조하기 (심사)
+                // -----------------------------------------------------------
+                // 가져온 명단을 깔끔한 리스트로 정리
                 const allowedEmails = rows.flat().map((email) => String(email).trim());
 
-                // 5. 들어오려는 사람이 명단에 있는지 확인
+                // 들어오려는 사람이 명단에 있는지 확인
                 if (user.email && allowedEmails.includes(user.email)) {
                     console.log("환영합니다! 접속 성공:", user.email);
                     return true; // 문 열어줌 ⭕
