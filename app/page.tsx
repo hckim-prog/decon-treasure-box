@@ -197,7 +197,7 @@ export default function Home() {
             href="/ideas"
             className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-yellow-400/20 hover:scale-105"
           >
-            💡 Idea Board
+            💡 아이디어 제안
           </Link>
 
           {/* 기존 관리자/로그인 버튼 */}
@@ -207,7 +207,7 @@ export default function Home() {
             </button>
           ) : (
             <Link href="/login" className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/40 backdrop-blur-sm border border-white/10">
-              <RiAdminLine /> Authorized Only
+              <RiAdminLine /> 관리자 전용
             </Link>
           )}
         </div>
