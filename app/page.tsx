@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
+// ✅ [중요] 님께서 알려주신 새로운 주소로 교체했습니다!
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
 interface Treasure {
@@ -22,10 +23,14 @@ export default function Home() {
   const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
+    // 1. 관리자 권한 확인
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
+
+    // 2. 데이터 가져오기 (새로운 주소 사용)
     fetchTreasures();
 
+    // 3. 즐겨찾기 목록 불러오기
     const savedFavs = localStorage.getItem('myDeconFavorites');
     if (savedFavs) {
       setFavorites(JSON.parse(savedFavs));
@@ -49,8 +54,14 @@ export default function Home() {
     try {
       const res = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
-      const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
-      setTreasures(sortedData);
+
+      // ✅ [안전장치] 데이터가 배열인지 확인 후 정렬 (에러 방지)
+      if (Array.isArray(data)) {
+        const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
+        setTreasures(sortedData);
+      } else {
+        console.error("데이터 형식 오류 (배열이 아닙니다):", data);
+      }
     } catch (error) {
       console.error("데이터 로딩 실패:", error);
     }
