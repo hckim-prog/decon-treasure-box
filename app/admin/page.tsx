@@ -1,4 +1,3 @@
-// src/app/admin/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import { useRouter } from 'next/navigation';
 // 아이콘들
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck } from 'react-icons/fi';
 
-// ✅ Apps Script 주소 (유지)
+// ✅ Apps Script 주소
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 interface Asset {
@@ -34,20 +33,23 @@ export default function AdminPage() {
         fetchAssets();
     }, [router]);
 
-    // 1. 실시간 데이터 조회 (Apps Script)
+    // 1. 실시간 데이터 조회 (캐시 방지 적용 ⭐)
     const fetchAssets = async () => {
         try {
-            // 읽을 때는 ?action=read 붙여서 명확하게 요청
-            const res = await fetch(`${APPS_SCRIPT_URL}?action=read`);
+            // 주소 뒤에 시간을 붙여서 매번 새로운 요청인 것처럼 속임 (캐시 무시)
+            const res = await fetch(`${APPS_SCRIPT_URL}?action=read&t=${Date.now()}`);
             const data = await res.json();
-            const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
-            setAssets(sortedData);
+
+            if (Array.isArray(data)) {
+                const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
+                setAssets(sortedData);
+            }
         } catch (error) {
             console.error("데이터 로딩 실패:", error);
         }
     };
 
-    // 2. 등록 및 수정 (여기가 핵심 수정! 🛠️)
+    // 2. 등록 및 수정 (데이터 전송 방식 변경 🛠️)
     const handleSubmit = async () => {
         if (!form.title || !form.url) return alert('제목과 URL은 필수입니다!');
         setLoading(true);
@@ -55,30 +57,32 @@ export default function AdminPage() {
         try {
             const actionType = editingId ? 'update' : 'create';
 
-            // 🚨 [수정됨] 데이터를 주소 꼬리표(Params)로 만들어서 보냅니다.
-            const params = new URLSearchParams();
-            params.append('action', actionType);
-            if (editingId) params.append('id', editingId);
-            params.append('title', form.title);
-            params.append('description', form.description);
-            params.append('type', form.type);
-            params.append('url', form.url);
+            // 🚨 [핵심 수정] JSON 대신 URLSearchParams(폼 데이터) 방식 사용
+            // Apps Script가 데이터를 확실하게 인식하도록 포장 방식을 바꿉니다.
+            const formData = new URLSearchParams();
+            formData.append('action', actionType);
+            if (editingId) formData.append('id', editingId);
+            formData.append('title', form.title);
+            formData.append('description', form.description);
+            formData.append('type', form.type);
+            formData.append('url', form.url);
 
-            // Apps Script가 데이터를 잘 받도록 URL 뒤에 붙여서 전송 (+ no-cors)
-            await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // 응답 확인 안 함 (보안 에러 방지)
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                mode: 'no-cors', // 보안 에러 무시
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString() // 변환된 데이터 전송
             });
 
-            // no-cors는 성공 여부를 알 수 없으므로, 일단 성공했다고 가정
             alert(editingId ? '수정 요청을 보냈습니다!' : '등록 요청을 보냈습니다!');
 
             setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
             setEditingId(null);
 
-            // 구글 시트가 저장할 시간을 조금 주고 목록 갱신
-            setTimeout(() => fetchAssets(), 1500);
+            // 구글 시트 저장 시간(2초) 대기 후 목록 갱신
+            setTimeout(() => fetchAssets(), 2000);
 
         } catch (error) {
             console.error(error);
@@ -88,23 +92,25 @@ export default function AdminPage() {
         }
     };
 
-    // 3. 삭제 (여기도 수정됨! 🛠️)
+    // 3. 삭제 (데이터 전송 방식 변경 🛠️)
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
         setLoading(true);
         try {
-            // 삭제 명령도 URL 파라미터로 전송
-            const params = new URLSearchParams();
-            params.append('action', 'delete');
-            params.append('id', id);
+            // 삭제 요청도 폼 데이터 방식으로 전송
+            const formData = new URLSearchParams();
+            formData.append('action', 'delete');
+            formData.append('id', id);
 
-            await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
+            await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
             });
 
             alert('삭제 요청을 보냈습니다.');
-            setTimeout(() => fetchAssets(), 1500);
+            setTimeout(() => fetchAssets(), 2000);
         } catch (error) {
             alert('오류 발생');
         } finally {
