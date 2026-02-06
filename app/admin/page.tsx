@@ -34,10 +34,11 @@ export default function AdminPage() {
         fetchAssets();
     }, [router]);
 
-    // 실시간 데이터 조회 (Apps Script)
+    // 1. 실시간 데이터 조회 (Apps Script)
     const fetchAssets = async () => {
         try {
-            const res = await fetch(APPS_SCRIPT_URL);
+            // 읽을 때는 ?action=read 붙여서 명확하게 요청
+            const res = await fetch(`${APPS_SCRIPT_URL}?action=read`);
             const data = await res.json();
             const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
             setAssets(sortedData);
@@ -46,26 +47,38 @@ export default function AdminPage() {
         }
     };
 
-    // 등록 및 수정
+    // 2. 등록 및 수정 (여기가 핵심 수정! 🛠️)
     const handleSubmit = async () => {
         if (!form.title || !form.url) return alert('제목과 URL은 필수입니다!');
         setLoading(true);
 
         try {
-            const actionType = editingId ? 'UPDATE' : 'CREATE';
-            const payload = { action: actionType, id: editingId, ...form };
+            const actionType = editingId ? 'update' : 'create';
 
-            await fetch(APPS_SCRIPT_URL, {
+            // 🚨 [수정됨] 데이터를 주소 꼬리표(Params)로 만들어서 보냅니다.
+            const params = new URLSearchParams();
+            params.append('action', actionType);
+            if (editingId) params.append('id', editingId);
+            params.append('title', form.title);
+            params.append('description', form.description);
+            params.append('type', form.type);
+            params.append('url', form.url);
+
+            // Apps Script가 데이터를 잘 받도록 URL 뒤에 붙여서 전송 (+ no-cors)
+            await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
                 method: 'POST',
-                mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                mode: 'no-cors', // 응답 확인 안 함 (보안 에러 방지)
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             });
 
-            alert(editingId ? '수정되었습니다!' : '등록되었습니다!');
+            // no-cors는 성공 여부를 알 수 없으므로, 일단 성공했다고 가정
+            alert(editingId ? '수정 요청을 보냈습니다!' : '등록 요청을 보냈습니다!');
+
             setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
             setEditingId(null);
-            fetchAssets();
+
+            // 구글 시트가 저장할 시간을 조금 주고 목록 갱신
+            setTimeout(() => fetchAssets(), 1500);
 
         } catch (error) {
             console.error(error);
@@ -75,19 +88,23 @@ export default function AdminPage() {
         }
     };
 
-    // 삭제
+    // 3. 삭제 (여기도 수정됨! 🛠️)
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
         setLoading(true);
         try {
-            await fetch(APPS_SCRIPT_URL, {
+            // 삭제 명령도 URL 파라미터로 전송
+            const params = new URLSearchParams();
+            params.append('action', 'delete');
+            params.append('id', id);
+
+            await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'DELETE', id: id }),
             });
-            alert('삭제되었습니다.');
-            fetchAssets();
+
+            alert('삭제 요청을 보냈습니다.');
+            setTimeout(() => fetchAssets(), 1500);
         } catch (error) {
             alert('오류 발생');
         } finally {
@@ -139,10 +156,9 @@ export default function AdminPage() {
                             {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
 
-                        {/* ✅ [수정 완료] 상단 링크 영역 (파란색 + 초록색 박스) */}
+                        {/* 상단 링크 영역 */}
                         {!editingId && (
                             <div className="space-y-3 mb-6">
-                                {/* 1. 기존 파란색 박스 (Desktop Apps) */}
                                 <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
                                     <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
                                     <a
@@ -154,8 +170,6 @@ export default function AdminPage() {
                                         구글 드라이브 바로가기 ↗
                                     </a>
                                 </div>
-
-                                {/* 2. ✨ [새로 추가됨] 초록색 박스 (권한 관리) */}
                                 <div className="bg-green-50 border border-green-100 rounded-xl p-4">
                                     <p className="text-xs text-green-700 font-bold mb-1">🔐 사이트 로그인 계정 관리:</p>
                                     <a
