@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+// ✅ [추가됨] NextAuth에서 로그인 정보 가져오기
+import { useSession, signIn } from "next-auth/react";
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ 님께서 알려주신 주소 그대로 유지!
+// ✅ 주소 유지
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -16,43 +18,65 @@ interface Treasure {
 
 export default function Home() {
   const router = useRouter();
+
+  // 🕵️‍♂️ [핵심 수정] 구글 로그인 세션 정보 가져오기
+  const { data: session, status } = useSession();
+
   const [treasures, setTreasures] = useState<Treasure[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TreasureType | 'ALL' | 'FAVORITE'>('ALL');
   const [isAdmin, setIsAdmin] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
+  const [isLogSent, setIsLogSent] = useState(false); // 로그 중복 방지
 
   useEffect(() => {
-    // 1. 관리자 권한 확인
-    const adminStatus = sessionStorage.getItem('isAdmin');
-    setIsAdmin(adminStatus === 'true');
+    // 1. 로딩 중이면 대기
+    if (status === 'loading') return;
 
-    // 2. 데이터 가져오기
-    fetchTreasures();
-
-    // 3. 즐겨찾기 목록 불러오기
-    const savedFavs = localStorage.getItem('myDeconFavorites');
-    if (savedFavs) {
-      setFavorites(JSON.parse(savedFavs));
+    // 2. 로그인이 안 되어 있다면? -> 구글 로그인 창 띄우기
+    if (status === 'unauthenticated') {
+      signIn('google'); // 구글 로그인 강제 실행
+      return;
     }
 
-    // 🕵️‍♂️ [여기가 추가된 부분!] 방문자 자동 기록 (관리자가 아닐 때만)
-    if (adminStatus !== 'true') {
-      const params = new URLSearchParams();
-      params.append('action', 'log');      // "기록해줘" 명령
-      params.append('user', 'Visitor');    // 사용자 이름은 "방문자"
-      params.append('act', '메인 페이지 접속'); // 활동 내용
+    // 3. 로그인이 확인되면 실행 (status === 'authenticated')
+    if (session?.user?.email) {
 
-      // 구글 시트로 조용히 신호 보내기 (결과 확인 안 함)
-      fetch(APPS_SCRIPT_URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: params.toString()
-      });
+      // 관리자 권한 확인 (기존 방식 유지 + 이메일 확인도 가능)
+      const adminStatus = sessionStorage.getItem('isAdmin');
+      setIsAdmin(adminStatus === 'true');
+
+      // 데이터 가져오기
+      fetchTreasures();
+
+      // 즐겨찾기 불러오기
+      const savedFavs = localStorage.getItem('myDeconFavorites');
+      if (savedFavs) {
+        setFavorites(JSON.parse(savedFavs));
+      }
+
+      // 🕵️‍♂️ [로그 전송] 구글 이메일을 Apps Script로 보냅니다!
+      // (로그를 아직 안 보냈고, 관리자가 아닐 때만)
+      if (!isLogSent && adminStatus !== 'true') {
+        const params = new URLSearchParams();
+        params.append('action', 'log');
+        // ✅ 'Visitor' 대신 진짜 구글 이메일을 보냅니다!
+        params.append('user', session.user.email);
+        params.append('act', '메인 페이지 접속');
+
+        fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString()
+        });
+        setIsLogSent(true); // 전송 완료 체크 (중복 방지)
+      }
     }
 
-  }, []);
+  }, [status, session]); // 로그인 상태가 변하면 다시 실행
+
+  // ... (아래부터는 기존 코드와 100% 동일합니다) ...
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -187,6 +211,11 @@ export default function Home() {
       </div>
     </a>
   );
+
+  // 🚪 로그인 체크 중이면 로딩 화면 (깜빡임 방지)
+  if (status === 'loading') {
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
+  }
 
   return (
     <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
