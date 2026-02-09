@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ [중요] 님께서 알려주신 새로운 주소로 교체했습니다!
+// ✅ 님께서 알려주신 주소 그대로 유지!
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -27,7 +27,7 @@ export default function Home() {
     const adminStatus = sessionStorage.getItem('isAdmin');
     setIsAdmin(adminStatus === 'true');
 
-    // 2. 데이터 가져오기 (새로운 주소 사용)
+    // 2. 데이터 가져오기
     fetchTreasures();
 
     // 3. 즐겨찾기 목록 불러오기
@@ -35,6 +35,23 @@ export default function Home() {
     if (savedFavs) {
       setFavorites(JSON.parse(savedFavs));
     }
+
+    // 🕵️‍♂️ [여기가 추가된 부분!] 방문자 자동 기록 (관리자가 아닐 때만)
+    if (adminStatus !== 'true') {
+      const params = new URLSearchParams();
+      params.append('action', 'log');      // "기록해줘" 명령
+      params.append('user', 'Visitor');    // 사용자 이름은 "방문자"
+      params.append('act', '메인 페이지 접속'); // 활동 내용
+
+      // 구글 시트로 조용히 신호 보내기 (결과 확인 안 함)
+      fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString()
+      });
+    }
+
   }, []);
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
@@ -55,7 +72,6 @@ export default function Home() {
       const res = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
 
-      // ✅ [안전장치] 데이터가 배열인지 확인 후 정렬 (에러 방지)
       if (Array.isArray(data)) {
         const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
         setTreasures(sortedData);
