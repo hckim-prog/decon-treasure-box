@@ -5,24 +5,10 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 // ✅ [추가됨] NextAuth에서 로그인 정보 가져오기
 import { useSession, signIn } from "next-auth/react";
-// ✅ Solar Icons (Iconify) - React Icons에 포함된 Solar 아이콘 활용
-// 만약 Solar 아이콘이 없다면 유사한 스타일로 대체하되, 요청하신 느낌을 최대한 살립니다.
-// 여기서는 Solar 스타일의 아이콘을 대체할 수 있는 직관적인 아이콘으로 구성했습니다.
-import {
-  RiAdminLine,
-  RiSearchLine,
-  RiGlobalLine,
-  RiFileTextLine,
-  RiComputerLine,
-  RiLayoutGridLine,
-  RiStarFill,
-  RiStarLine,
-  RiArrowRightUpLine,
-  RiDownloadCloud2Line,
-  RiToolsFill
-} from 'react-icons/ri';
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
+import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ Apps Script 주소 유지
+// ✅ 주소 유지
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
@@ -138,187 +124,170 @@ export default function Home() {
 
   const allFiltered = getFilteredItems(treasures, filterType);
 
-  // 🎨 [디자인 수정] 카테고리별 테마 색상 정의
-  const getThemeColor = (type: string) => {
+  const getTypeBadgeStyle = (type: string) => {
     switch (type?.trim()) {
-      case 'WEB_TOOL': return { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100', hover: 'group-hover:border-blue-300', iconBg: 'bg-blue-100' };
-      case 'WEBSITE': return { bg: 'bg-indigo-50', text: 'text-indigo-600', border: 'border-indigo-100', hover: 'group-hover:border-indigo-300', iconBg: 'bg-indigo-100' };
-      case 'SOFTWARE': return { bg: 'bg-slate-100', text: 'text-slate-600', border: 'border-slate-200', hover: 'group-hover:border-slate-300', iconBg: 'bg-slate-200' };
-      case 'DOC': return { bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100', hover: 'group-hover:border-emerald-300', iconBg: 'bg-emerald-100' };
-      default: return { bg: 'bg-gray-50', text: 'text-gray-500', border: 'border-gray-200', hover: 'group-hover:border-gray-300', iconBg: 'bg-gray-100' };
+      case 'WEB_TOOL': return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'WEBSITE': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
+      case 'SOFTWARE': return 'bg-slate-100 text-slate-600 border-slate-200';
+      case 'DOC': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      default: return 'bg-gray-50 text-gray-500 border-gray-200';
     }
   };
 
   const getFilterIcon = (type: string) => {
     switch (type) {
-      case 'ALL': return <RiLayoutGridLine />;
-      case 'FAVORITE': return <RiStarFill className={filterType === 'FAVORITE' ? 'text-yellow-400' : ''} />;
-      case 'WEB_TOOL': return <RiToolsFill />;
-      case 'WEBSITE': return <RiGlobalLine />;
-      case 'DOC': return <RiFileTextLine />;
-      case 'SOFTWARE': return <RiComputerLine />;
-      default: return <RiLayoutGridLine />;
+      case 'ALL': return <FiLayers />;
+      case 'FAVORITE': return <FiStar className={filterType === 'FAVORITE' ? 'fill-current' : ''} />;
+      case 'WEB_TOOL': return <FiGrid />;
+      case 'WEBSITE': return <FiGlobe />;
+      case 'DOC': return <FiFileText />;
+      case 'SOFTWARE': return <FiMonitor />;
+      default: return <FiLayers />;
     }
   };
 
   const getFilterLabel = (type: string) => {
     switch (type) {
       case 'ALL': return 'All Assets';
-      case 'FAVORITE': return 'Favorites';
-      case 'WEB_TOOL': return 'Tools';
+      case 'FAVORITE': return 'My Favorites';
+      case 'WEB_TOOL': return 'Online Tools';
       case 'WEBSITE': return 'Portals';
-      case 'DOC': return 'Docs';
-      case 'SOFTWARE': return 'Apps';
+      case 'DOC': return 'Documents';
+      case 'SOFTWARE': return 'Desktop Apps';
       default: return type;
     }
   };
 
-  const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element; color: string }> = {
-    'WEB_TOOL': { label: 'Online Tools', icon: <RiToolsFill size={20} />, color: 'text-blue-600' },
-    'WEBSITE': { label: 'Portals & Sites', icon: <RiGlobalLine size={20} />, color: 'text-indigo-600' },
-    'DOC': { label: 'Documents', icon: <RiFileTextLine size={20} />, color: 'text-emerald-600' },
-    'SOFTWARE': { label: 'Desktop Apps', icon: <RiComputerLine size={20} />, color: 'text-slate-600' },
+  const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element }> = {
+    'WEB_TOOL': { label: 'Online Tools', icon: <FiGrid className="text-blue-500" size={22} /> },
+    'WEBSITE': { label: 'Portals & Sites', icon: <FiGlobe className="text-indigo-500" size={22} /> },
+    'DOC': { label: 'Documents', icon: <FiFileText className="text-emerald-500" size={22} /> },
+    'SOFTWARE': { label: 'Desktop Apps', icon: <FiMonitor className="text-slate-500" size={22} /> },
   };
 
   const categoryOrder: TreasureType[] = ['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'];
 
-  // 🎨 [디자인 수정] 카드 렌더링 컴포넌트 (Bento Grid 스타일 적용)
-  const renderCard = (item: Treasure) => {
-    const theme = getThemeColor(item.type);
-
-    return (
-      <a key={item.id} href={item.url} target="_blank" className={`group relative flex flex-col h-full bg-white rounded-3xl p-6 border border-slate-100 shadow-sm transition-all duration-300 hover:shadow-xl hover:-translate-y-1 overflow-hidden ${theme.hover}`}>
-
-        {/* 배경 장식용 그라데이션 원 */}
-        <div className={`absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-20 blur-3xl transition-all group-hover:scale-150 ${theme.bg.replace('bg-', 'bg-')}-400`}></div>
-
-        <div className="flex justify-between items-start mb-4 relative z-10">
-          {/* 아이콘 박스 */}
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner ${theme.iconBg} ${theme.text}`}>
-            {item.type === 'SOFTWARE' ? <RiDownloadCloud2Line /> :
-              item.type === 'DOC' ? <RiFileTextLine /> :
-                item.type === 'WEB_TOOL' ? <RiToolsFill /> : <RiGlobalLine />}
-          </div>
-
-          {/* 즐겨찾기 버튼 */}
-          <button
-            onClick={(e) => toggleFavorite(item.id, e)}
-            className="w-10 h-10 rounded-full bg-white border border-slate-100 flex items-center justify-center transition-all hover:bg-yellow-50 hover:border-yellow-200 hover:scale-110 shadow-sm"
-            title="즐겨찾기 추가/해제"
-          >
-            {favorites.includes(item.id) ? (
-              <RiStarFill className="text-yellow-400 text-lg drop-shadow-sm" />
-            ) : (
-              <RiStarLine className="text-slate-300 text-lg group-hover:text-yellow-400" />
-            )}
-          </button>
-        </div>
-
-        <div className="relative z-10 flex-grow">
-          {/* 태그 */}
-          <span className={`inline-block text-[10px] font-extrabold px-3 py-1 rounded-full mb-3 tracking-wide uppercase ${theme.bg} ${theme.text}`}>
-            {item.type === 'WEB_TOOL' ? 'TOOL' : item.type.replace('_', ' ')}
-          </span>
-
-          {/* 제목 */}
-          <h3 className="font-bold text-xl text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors">
-            {item.title}
-          </h3>
-
-          {/* 설명 */}
-          <p className="text-sm text-slate-500 leading-relaxed line-clamp-3">
+  const renderCard = (item: Treasure) => (
+    <a key={item.id} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
+      <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
+        <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
+          <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
+          <p className="leading-relaxed font-medium text-slate-200">
             {item.description || "설명이 없습니다."}
           </p>
         </div>
+      </div>
 
-        {/* 하단 버튼 영역 */}
-        <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end items-center relative z-10">
-          <span className={`text-xs font-bold flex items-center gap-1 transition-all group-hover:gap-2 ${theme.text}`}>
-            바로가기 <RiArrowRightUpLine />
-          </span>
-        </div>
-      </a>
-    );
-  };
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500 rounded-t-2xl"></div>
+
+      <div className="flex justify-between items-start mb-4 mt-1">
+        <span className={`text-[10px] px-2.5 py-1 rounded-full border font-bold tracking-wider uppercase flex items-center gap-1.5 ${getTypeBadgeStyle(item.type)}`}>
+          {item.type === 'SOFTWARE' ? <FiDownloadCloud /> : <FiExternalLink />}
+          {item.type === 'WEB_TOOL' ? 'TOOL' : item.type.replace('_', ' ')}
+        </span>
+        <button
+          onClick={(e) => toggleFavorite(item.id, e)}
+          className="w-8 h-8 rounded-full bg-slate-50 hover:bg-indigo-50 flex items-center justify-center transition-colors z-20 cursor-pointer"
+          title="즐겨찾기 추가/해제"
+        >
+          <FiStar
+            className={`text-sm transition-colors ${favorites.includes(item.id) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 group-hover:text-indigo-300'}`}
+            size={16}
+          />
+        </button>
+      </div>
+
+      <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors relative z-10">
+        {item.title}
+      </h3>
+
+      <div className="flex-grow"></div>
+
+      <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
+        <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none relative z-20">
+          <FiZap className="text-indigo-500 text-sm transition-colors group-hover/btn:text-white" />
+          바로가기
+        </span>
+      </div>
+    </a>
+  );
 
   // 🚪 로그인 체크 중이면 로딩 화면 (깜빡임 방지)
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400 font-medium">Loading contents...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
   }
 
   return (
-    <main className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* 헤더 섹션 */}
-      <div className="relative w-full bg-white border-b border-slate-100 pb-12 pt-8 px-6">
-        <div className="max-w-7xl mx-auto">
-          {/* 상단 네비게이션 */}
-          <div className="flex justify-between items-center mb-12">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-sm">D</div>
-              <span className="font-bold text-slate-800 tracking-tight">DECON HUB</span>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link href="/ideas" className="hidden md:flex items-center gap-2 bg-yellow-50 hover:bg-yellow-100 text-yellow-700 px-4 py-2 rounded-xl transition-all text-xs font-bold border border-yellow-200">
-                💡 아이디어 제안
-              </Link>
-              {isAdmin ? (
-                <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl transition-all text-xs font-bold shadow-lg shadow-slate-200">
-                  <RiAdminLine className="text-base" /> Admin
-                </button>
-              ) : (
-                <Link href="/login" className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-800 transition-colors bg-slate-100 px-4 py-2 rounded-xl font-bold">
-                  <RiAdminLine /> Staff Only
-                </Link>
-              )}
-            </div>
+    <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+      <div className="relative w-full h-[400px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
+        <iframe
+          src='https://my.spline.design/boxeshover-bh1N84ii3IdAYEwcUbzpQj5W/'
+          frameBorder='0' width='100%' height='100%' className="absolute inset-0 w-full h-full z-0"
+        ></iframe>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90 pointer-events-none z-10"></div>
+        <div className="relative z-20 max-w-2xl text-white mt-4 pointer-events-none">
+          <div className="flex justify-center mb-4">
+            <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
+              Digital Contents Transformation Team
+            </span>
           </div>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white drop-shadow-2xl">
+            DECON <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">Digital Hub</span>
+          </h1>
+          <p className="text-slate-300 text-sm md:text-base font-medium max-w-lg mx-auto leading-relaxed opacity-90">
+            업무 효율화를 위한 모든 디지털 자산을 한곳에.<br />
+            필요한 도구와 문서를 빠르고 쉽게 찾아보세요.
+          </p>
+        </div>
 
-          {/* 타이틀 및 검색 */}
-          <div className="flex flex-col md:flex-row gap-8 items-end justify-between">
-            <div>
-              <span className="inline-block px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold tracking-widest uppercase mb-4">Digital Transformation</span>
-              <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 mb-4">
-                Digital <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 to-purple-500">Asset Library</span>
-              </h1>
-              <p className="text-slate-500 font-medium max-w-lg leading-relaxed">
-                업무 효율화를 위한 모든 디지털 자산을 한곳에 모았습니다.<br className="hidden md:block" /> 필요한 도구를 쉽고 빠르게 찾아보세요.
-              </p>
-            </div>
+        <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
+          <Link href="/ideas" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-yellow-400/20 hover:scale-105">
+            💡 아이디어 제안
+          </Link>
+          {isAdmin ? (
+            <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-indigo-500/30">
+              <RiAdminLine className="text-lg" /> Admin Dashboard
+            </button>
+          ) : (
+            <Link href="/login" className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/40 backdrop-blur-sm border border-white/10">
+              <RiAdminLine /> 관리자 전용
+            </Link>
+          )}
+        </div>
+      </div>
 
-            {/* 검색바 */}
-            <div className="w-full md:w-auto relative group">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <RiSearchLine className="text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+      <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
+        <div className="sticky top-6 z-40 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5 transition-all duration-300">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative w-full md:w-72 flex-shrink-0 group">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
+                <FiSearch className="text-slate-400" />
               </div>
               <input
-                type="text" placeholder="Search assets..."
-                className="pl-11 pr-4 py-4 bg-white border border-slate-200 rounded-2xl w-full md:w-80 text-sm font-medium focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500 outline-none transition-all placeholder:text-slate-400 shadow-sm"
+                type="text" placeholder="검색..."
+                className="pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl w-full text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-400"
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
+
+            <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide flex-nowrap items-center">
+              {['ALL', 'FAVORITE', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
+                <button key={type} onClick={() => setFilterType(type as any)}
+                  className={`flex items-center gap-2 px-4 py-2 text-[11px] font-bold rounded-full transition-all border whitespace-nowrap flex-shrink-0
+                    ${filterType === type
+                      ? type === 'FAVORITE'
+                        ? 'bg-yellow-50 text-yellow-600 border-yellow-200 shadow-md transform scale-105'
+                        : 'bg-slate-800 text-white border-slate-800 shadow-md transform scale-105'
+                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700'}`}>
+                  {getFilterIcon(type)}
+                  {getFilterLabel(type)}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* 필터 탭 */}
-      <div className="sticky top-0 z-50 bg-[#F8FAFC]/80 backdrop-blur-md border-b border-white/50 px-6 py-4">
-        <div className="max-w-7xl mx-auto flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
-          {['ALL', 'FAVORITE', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
-            <button key={type} onClick={() => setFilterType(type as any)}
-              className={`flex items-center gap-2 px-5 py-2.5 text-xs font-bold rounded-xl transition-all border whitespace-nowrap
-                ${filterType === type
-                  ? 'bg-slate-900 text-white border-slate-900 shadow-md transform scale-105'
-                  : 'bg-white text-slate-500 border-slate-200 hover:bg-white hover:border-slate-300 hover:text-slate-700 hover:shadow-sm'}`}>
-              {getFilterIcon(type)}
-              {getFilterLabel(type)}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* 컨텐츠 영역 */}
-      <div className="max-w-7xl mx-auto px-6 py-12 pb-24">
-        <div className="space-y-20">
+        <div className="space-y-16">
           {filterType === 'ALL' && (
             <>
               {categoryOrder.map((type) => {
@@ -326,18 +295,16 @@ export default function Home() {
                 if (catItems.length === 0) return null;
                 return (
                   <section key={type} className="animate-fade-in-up">
-                    <div className="flex items-center gap-3 mb-8">
-                      <div className={`p-2 rounded-lg bg-white shadow-sm border border-slate-100 ${categoryConfig[type].color}`}>
+                    <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
+                      <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
                         {categoryConfig[type].icon}
-                      </div>
-                      <h2 className="text-2xl font-bold text-slate-800">
                         {categoryConfig[type].label}
                       </h2>
-                      <span className="ml-auto text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-1 rounded-full">
+                      <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200">
                         {catItems.length}
                       </span>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                       {catItems.map(renderCard)}
                     </div>
                   </section>
@@ -348,36 +315,33 @@ export default function Home() {
 
           {filterType !== 'ALL' && (
             <div className="animate-fade-in-up">
-              <div className="flex items-center gap-3 mb-8">
-                <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
+                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
                   {getFilterIcon(filterType)}
                   {getFilterLabel(filterType)}
                 </h2>
-                <span className="text-xs font-bold bg-slate-200 text-slate-600 px-2.5 py-1 rounded-full">
+                <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200">
                   {allFiltered.length}
                 </span>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {allFiltered.map(renderCard)}
               </div>
             </div>
           )}
 
           {allFiltered.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-32 text-slate-400 bg-white rounded-3xl border border-dashed border-slate-200 mx-auto max-w-2xl">
-              <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                {filterType === 'FAVORITE' ? <RiStarFill className="text-2xl text-slate-300" /> : <RiSearchLine className="text-2xl text-slate-300" />}
-              </div>
-              <p className="text-sm font-medium">
-                {filterType === 'FAVORITE' ? "아직 즐겨찾기한 항목이 없습니다." : "검색 결과가 없습니다."}
+            <div className="col-span-full flex flex-col items-center justify-center py-24 text-slate-400 bg-white/50 rounded-2xl border border-dashed border-slate-200">
+              {filterType === 'FAVORITE' ? <FiStar className="text-4xl mb-4 text-slate-300" /> : <FiSearch className="text-4xl mb-4 text-slate-300" />}
+              <p className="text-sm">
+                {filterType === 'FAVORITE' ? "아직 즐겨찾기한 항목이 없습니다. ⭐ 별표를 눌러 추가해보세요!" : "검색 결과가 없습니다."}
               </p>
             </div>
           )}
         </div>
 
-        <footer className="text-center mt-32 pt-10 border-t border-slate-200">
-          <p className="text-slate-400 text-xs font-medium uppercase tracking-widest mb-2">DECON Digital Hub</p>
-          <p className="text-slate-300 text-[10px]">© 2024 Digital Contents Transformation Team. All rights reserved.</p>
+        <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-24 py-10 border-t border-slate-100">
+          © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
       </div>
     </main>
