@@ -29,23 +29,20 @@ export default function IdeasPage() {
     // 1. 아이디어 불러오기 (Read)
     const fetchIdeas = async () => {
         try {
-            // 캐시 방지를 위해 시간(&t=...) 추가
             const res = await fetch(`${APPS_SCRIPT_URL}?type=IDEAS&t=${Date.now()}`);
             const data = await res.json();
-            // 최신순 정렬
             setIdeas(data.sort((a: any, b: any) => Number(b.id) - Number(a.id)));
         } catch (error) {
             console.error("로딩 실패:", error);
         }
     };
 
-    // 2. 아이디어 등록 (Create) - 📦 포장 방식 변경 완료!
+    // 2. 아이디어 등록 (Create)
     const handleSubmit = async () => {
         if (!form.nickname || !form.password || !form.content) return alert('모든 칸을 채워주세요!');
 
         setLoading(true);
         try {
-            // 🚨 JSON 대신 URLSearchParams(종이 상자) 사용!
             const params = new URLSearchParams();
             params.append('action', 'CREATE_IDEA');
             params.append('nickname', form.nickname);
@@ -55,13 +52,13 @@ export default function IdeasPage() {
             await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // 명찰도 바꿈
-                body: params.toString() // 포장된 데이터 전송
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
             });
 
             alert('아이디어가 벽에 붙었어요! 🎉');
             setForm({ nickname: '', password: '', content: '' }); // 초기화
-            setTimeout(fetchIdeas, 1500); // 구글 시트에 적힐 시간 주고 새로고침
+            setTimeout(fetchIdeas, 1500); // 새로고침
         } catch (error) {
             alert('오류 발생');
         } finally {
@@ -69,14 +66,13 @@ export default function IdeasPage() {
         }
     };
 
-    // 3. 아이디어 삭제 (Delete) - 📦 여기도 포장 방식 변경 완료!
+    // 3. 아이디어 삭제 (Delete)
     const handleDelete = async (id: string) => {
         const password = prompt("삭제하려면 설정한 비밀번호(4자리)를 입력하세요.");
         if (!password) return;
 
         setLoading(true);
         try {
-            // 🚨 JSON 대신 URLSearchParams(종이 상자) 사용!
             const params = new URLSearchParams();
             params.append('action', 'DELETE_IDEA');
             params.append('id', id);
@@ -128,29 +124,43 @@ export default function IdeasPage() {
                             className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none resize-none h-24 text-sm"
                         />
 
-                        <div className="flex flex-col md:flex-row gap-3 justify-between items-center">
-                            <div className="flex gap-2 w-full md:w-auto">
-                                <input
-                                    type="text" placeholder="닉네임"
-                                    value={form.nickname}
-                                    onChange={e => setForm({ ...form, nickname: e.target.value })}
-                                    className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-32 outline-none focus:border-indigo-500"
-                                />
-                                <input
-                                    type="password" placeholder="비번(4자리)"
-                                    value={form.password}
-                                    onChange={e => setForm({ ...form, password: e.target.value })}
-                                    className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-32 outline-none focus:border-indigo-500"
-                                />
+                        {/* ✨ 여기가 마법을 부린 친절한 UI 부분입니다! ✨ */}
+                        <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mt-2">
+
+                            {/* 닉네임, 비밀번호 입력칸을 하나로 묶음 */}
+                            <div className="flex flex-col w-full md:w-auto gap-1.5">
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="👤 작성자 (닉네임)"
+                                        value={form.nickname}
+                                        onChange={e => setForm({ ...form, nickname: e.target.value })}
+                                        className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-36 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                                    />
+                                    <input
+                                        type="password"
+                                        placeholder="🔒 삭제용 비밀번호"
+                                        maxLength={4} // 4자리까지만 입력 가능하게 막아줌!
+                                        value={form.password}
+                                        onChange={e => setForm({ ...form, password: e.target.value })}
+                                        className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-40 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
+                                    />
+                                </div>
+                                {/* 🙋 친절한 안내 문구 */}
+                                <p className="text-[11px] text-slate-400 pl-1">
+                                    * 비밀번호는 나중에 내 아이디어를 <strong className="text-red-400 font-normal">삭제할 때</strong> 필요해요.
+                                </p>
                             </div>
 
+                            {/* 등록 버튼 */}
                             <button
                                 onClick={handleSubmit}
                                 disabled={loading}
-                                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200"
+                                className="w-full md:w-auto bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-indigo-200 h-full"
                             >
                                 {loading ? '붙이는 중...' : <><FiSend /> 등록하기</>}
                             </button>
+
                         </div>
                     </div>
                 </div>
