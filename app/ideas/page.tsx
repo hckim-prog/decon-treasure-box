@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { FiHome, FiSend, FiTrash2, FiMessageSquare } from 'react-icons/fi';
 
 // ✅ 기존 Apps Script 주소 그대로 사용!
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFwmKztHa-GaeJ9yo1Np2AV2Np0Ob-Il9wYBwFhVWY0erePP66bZbFCOES4AgzBA8v/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
 
 interface Idea {
     id: string;
