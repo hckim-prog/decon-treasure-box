@@ -1,4 +1,3 @@
-// src/app/ideas/page.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -30,8 +29,8 @@ export default function IdeasPage() {
     // 1. 아이디어 불러오기 (Read)
     const fetchIdeas = async () => {
         try {
-            // type=IDEAS 파라미터를 붙여서 "아이디어 줘!" 라고 요청
-            const res = await fetch(`${APPS_SCRIPT_URL}?type=IDEAS`);
+            // 캐시 방지를 위해 시간(&t=...) 추가
+            const res = await fetch(`${APPS_SCRIPT_URL}?type=IDEAS&t=${Date.now()}`);
             const data = await res.json();
             // 최신순 정렬
             setIdeas(data.sort((a: any, b: any) => Number(b.id) - Number(a.id)));
@@ -40,24 +39,29 @@ export default function IdeasPage() {
         }
     };
 
-    // 2. 아이디어 등록 (Create)
+    // 2. 아이디어 등록 (Create) - 📦 포장 방식 변경 완료!
     const handleSubmit = async () => {
         if (!form.nickname || !form.password || !form.content) return alert('모든 칸을 채워주세요!');
 
         setLoading(true);
         try {
+            // 🚨 JSON 대신 URLSearchParams(종이 상자) 사용!
+            const params = new URLSearchParams();
+            params.append('action', 'CREATE_IDEA');
+            params.append('nickname', form.nickname);
+            params.append('password', form.password);
+            params.append('content', form.content);
+
             await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'CREATE_IDEA',
-                    ...form
-                }),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, // 명찰도 바꿈
+                body: params.toString() // 포장된 데이터 전송
             });
+
             alert('아이디어가 벽에 붙었어요! 🎉');
             setForm({ nickname: '', password: '', content: '' }); // 초기화
-            setTimeout(fetchIdeas, 1500); // 새로고침
+            setTimeout(fetchIdeas, 1500); // 구글 시트에 적힐 시간 주고 새로고침
         } catch (error) {
             alert('오류 발생');
         } finally {
@@ -65,23 +69,24 @@ export default function IdeasPage() {
         }
     };
 
-    // 3. 아이디어 삭제 (Delete)
+    // 3. 아이디어 삭제 (Delete) - 📦 여기도 포장 방식 변경 완료!
     const handleDelete = async (id: string) => {
         const password = prompt("삭제하려면 설정한 비밀번호(4자리)를 입력하세요.");
         if (!password) return;
 
         setLoading(true);
         try {
-            // Apps Script는 no-cors라 응답 내용을 못 읽으므로, 일단 요청 후 새로고침
+            // 🚨 JSON 대신 URLSearchParams(종이 상자) 사용!
+            const params = new URLSearchParams();
+            params.append('action', 'DELETE_IDEA');
+            params.append('id', id);
+            params.append('password', password);
+
             await fetch(APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    action: 'DELETE_IDEA',
-                    id,
-                    password
-                }),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params.toString()
             });
 
             alert('삭제 요청을 보냈습니다. (비번이 맞으면 사라집니다)');
