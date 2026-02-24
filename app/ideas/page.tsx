@@ -9,7 +9,7 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUN
 
 interface Idea {
     id: string;
-    nickname: string;
+    nickname: string; // (서버에는 nickname이라는 이름으로 보내지만, 화면에는 '실명'으로 보여줄 거예요!)
     content: string;
     date: string;
 }
@@ -26,7 +26,7 @@ export default function IdeasPage() {
         fetchIdeas();
     }, []);
 
-    // 1. 아이디어 불러오기 (Read)
+    // 1. 아이디어 불러오기
     const fetchIdeas = async () => {
         try {
             const res = await fetch(`${APPS_SCRIPT_URL}?type=IDEAS&t=${Date.now()}`);
@@ -37,7 +37,7 @@ export default function IdeasPage() {
         }
     };
 
-    // 2. 아이디어 등록 (Create)
+    // 2. 아이디어 등록
     const handleSubmit = async () => {
         if (!form.nickname || !form.password || !form.content) return alert('모든 칸을 채워주세요!');
 
@@ -57,8 +57,8 @@ export default function IdeasPage() {
             });
 
             alert('아이디어가 벽에 붙었어요! 🎉');
-            setForm({ nickname: '', password: '', content: '' }); // 초기화
-            setTimeout(fetchIdeas, 1500); // 새로고침
+            setForm({ nickname: '', password: '', content: '' });
+            setTimeout(fetchIdeas, 1500);
         } catch (error) {
             alert('오류 발생');
         } finally {
@@ -66,7 +66,7 @@ export default function IdeasPage() {
         }
     };
 
-    // 3. 아이디어 삭제 (Delete)
+    // 3. 아이디어 삭제
     const handleDelete = async (id: string) => {
         const password = prompt("삭제하려면 설정한 비밀번호(4자리)를 입력하세요.");
         if (!password) return;
@@ -124,32 +124,34 @@ export default function IdeasPage() {
                             className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none resize-none h-24 text-sm"
                         />
 
-                        {/* ✨ 여기가 마법을 부린 친절한 UI 부분입니다! ✨ */}
+                        {/* ✨ 이름(실명)과 비밀번호를 명확하게 안내하는 부분 ✨ */}
                         <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center mt-2">
 
-                            {/* 닉네임, 비밀번호 입력칸을 하나로 묶음 */}
-                            <div className="flex flex-col w-full md:w-auto gap-1.5">
+                            <div className="flex flex-col w-full md:w-auto gap-2">
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        placeholder="👤 작성자 (닉네임)"
+                                        autoComplete="off"
+                                        placeholder="👤 본명 (실명 입력)" // 닉네임 대신 '본명'으로 변경!
                                         value={form.nickname}
                                         onChange={e => setForm({ ...form, nickname: e.target.value })}
                                         className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-36 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
                                     />
                                     <input
                                         type="password"
+                                        autoComplete="new-password"
                                         placeholder="🔒 삭제용 비밀번호"
-                                        maxLength={4} // 4자리까지만 입력 가능하게 막아줌!
+                                        maxLength={4}
                                         value={form.password}
                                         onChange={e => setForm({ ...form, password: e.target.value })}
                                         className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-sm w-1/2 md:w-40 outline-none focus:border-indigo-500 focus:bg-white transition-colors"
                                     />
                                 </div>
-                                {/* 🙋 친절한 안내 문구 */}
-                                <p className="text-[11px] text-slate-400 pl-1">
-                                    * 비밀번호는 나중에 내 아이디어를 <strong className="text-red-400 font-normal">삭제할 때</strong> 필요해요.
-                                </p>
+                                {/* 🙋 두 줄로 나눠서 확실하게 경고해주기! */}
+                                <div className="text-[11px] text-slate-500 pl-1 space-y-0.5">
+                                    <p>🏷️ 누가 제안했는지 알 수 있게 <strong className="text-indigo-600 font-bold">반드시 실명</strong>을 적어주세요.</p>
+                                    <p>🔒 비밀번호는 나중에 글을 <strong className="text-red-400 font-normal">삭제할 때</strong>만 사용됩니다.</p>
+                                </div>
                             </div>
 
                             {/* 등록 버튼 */}
@@ -178,8 +180,8 @@ export default function IdeasPage() {
 
                             <div className="flex justify-between items-end mt-4 pt-4 border-t border-yellow-200/50">
                                 <div className="text-xs text-slate-500 font-mono">
-                                    <span className="font-bold text-slate-700">From. {item.nickname}</span>
-                                    <br />
+                                    {/* 화면에 보여줄 때도 명확하게! */}
+                                    <span className="font-bold text-indigo-700">{item.nickname}</span> 님의 제안<br />
                                     {new Date(item.date).toLocaleDateString()}
                                 </div>
 
