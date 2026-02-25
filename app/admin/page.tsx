@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-// 아이콘들 (FiActivity 추가됨)
-import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity } from 'react-icons/fi';
+// ✅ [추가됨] 위/아래 화살표, 저장 아이콘 추가
+import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
 
 // ✅ Apps Script 주소
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
@@ -16,20 +16,31 @@ interface Asset {
     url: string;
 }
 
-// 📜 [추가됨] 로그 데이터 타입 정의
 interface Log {
     time: string;
     user: string;
     act: string;
 }
 
+// 🆕 [추가됨] 기본 카테고리 순서 & 화면에 보여줄 이름표
+const DEFAULT_ORDER = ['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'];
+const TYPE_LABELS: any = {
+    'WEB_TOOL': 'ONLINE TOOLS',
+    'WEBSITE': 'PORTALS',
+    'DOC': 'DOCUMENTS',
+    'SOFTWARE': 'DESKTOP APPS'
+};
+
 export default function AdminPage() {
     const router = useRouter();
     const [assets, setAssets] = useState<Asset[]>([]);
-    const [logs, setLogs] = useState<Log[]>([]); // 📜 로그 저장소
+    const [logs, setLogs] = useState<Log[]>([]);
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState({ title: '', description: '', type: 'WEB_TOOL', url: '' });
     const [editingId, setEditingId] = useState<string | null>(null);
+
+    // 🆕 [추가됨] 현재 카테고리 순서를 기억하는 공간
+    const [categoryOrder, setCategoryOrder] = useState<string[]>(DEFAULT_ORDER);
 
     useEffect(() => {
         const checkAdmin = sessionStorage.getItem('isAdmin');
@@ -39,10 +50,11 @@ export default function AdminPage() {
             return;
         }
         fetchAssets();
-        fetchLogs(); // 📜 페이지 들어오면 로그도 같이 불러오기
+        fetchLogs();
+        fetchOrder(); // 🆕 페이지 열리면 순서도 가져오기!
     }, [router]);
 
-    // 1. 실시간 데이터 조회
+    // --- (기존 기능 유지) ---
     const fetchAssets = async () => {
         try {
             const res = await fetch(`${APPS_SCRIPT_URL}?action=read&t=${Date.now()}`);
@@ -51,30 +63,63 @@ export default function AdminPage() {
                 const sortedData = (data as Asset[]).sort((a, b) => Number(b.id) - Number(a.id));
                 setAssets(sortedData);
             }
-        } catch (error) {
-            console.error("데이터 로딩 실패:", error);
-        }
+        } catch (error) { console.error("데이터 로딩 실패:", error); }
     };
 
-    // 📜 1-2. 로그 데이터 조회 (새로 추가된 함수!)
     const fetchLogs = async () => {
         try {
-            // action=getLogs 요청을 보내서 최근 로그 50개를 가져옴
             const res = await fetch(`${APPS_SCRIPT_URL}?action=getLogs&t=${Date.now()}`);
             const data = await res.json();
-            if (Array.isArray(data)) {
-                setLogs(data);
-            }
-        } catch (error) {
-            console.error("로그 로딩 실패:", error);
-        }
+            if (Array.isArray(data)) { setLogs(data); }
+        } catch (error) { console.error("로그 로딩 실패:", error); }
     };
 
-    // 2. 등록 및 수정
+    // 🆕 1. 구글 시트에서 저장된 순서 가져오기
+    const fetchOrder = async () => {
+        try {
+            const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`);
+            const text = await res.text();
+            if (text && text !== "DEFAULT" && text.includes(',')) {
+                setCategoryOrder(text.split(',')); // 쉼표로 잘라서 배열로 만듦
+            }
+        } catch (error) { console.error("순서 로딩 실패", error); }
+    };
+
+    // 🆕 2. 화살표 눌렀을 때 순서 바꾸는 기능
+    const moveItem = (index: number, direction: 'up' | 'down') => {
+        const newOrder = [...categoryOrder];
+        if (direction === 'up' && index > 0) {
+            // 위로 올리기 (서로 자리 바꾸기)
+            [newOrder[index - 1], newOrder[index]] = [newOrder[index], newOrder[index - 1]];
+        } else if (direction === 'down' && index < newOrder.length - 1) {
+            // 아래로 내리기
+            [newOrder[index + 1], newOrder[index]] = [newOrder[index], newOrder[index + 1]];
+        }
+        setCategoryOrder(newOrder); // 바뀐 순서 화면에 적용
+    };
+
+    // 🆕 3. [순서 저장] 버튼 눌렀을 때 구글 시트로 보내기
+    const saveOrder = async () => {
+        if (!confirm('현재 순서를 전체 메인 화면에 적용하시겠습니까?')) return;
+        try {
+            const formData = new URLSearchParams();
+            formData.append('action', 'saveOrder');
+            formData.append('order', categoryOrder.join(',')); // "DOC,SOFTWARE..." 처럼 글자로 묶어서 전송
+
+            await fetch(APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData.toString()
+            });
+            alert('순서가 성공적으로 저장되었습니다! 🚀');
+        } catch (error) { alert('저장 실패'); }
+    };
+
+    // --- (기존 기능 유지) ---
     const handleSubmit = async () => {
         if (!form.title || !form.url) return alert('제목과 URL은 필수입니다!');
         setLoading(true);
-
         try {
             const actionType = editingId ? 'update' : 'create';
             const formData = new URLSearchParams();
@@ -96,16 +141,9 @@ export default function AdminPage() {
             setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
             setEditingId(null);
             setTimeout(() => fetchAssets(), 2000);
-
-        } catch (error) {
-            console.error(error);
-            alert('오류가 발생했습니다.');
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { console.error(error); alert('오류가 발생했습니다.'); } finally { setLoading(false); }
     };
 
-    // 3. 삭제
     const handleDelete = async (id: string) => {
         if (!confirm('정말 삭제하시겠습니까?')) return;
         setLoading(true);
@@ -123,11 +161,7 @@ export default function AdminPage() {
 
             alert('삭제 요청을 보냈습니다.');
             setTimeout(() => fetchAssets(), 2000);
-        } catch (error) {
-            alert('오류 발생');
-        } finally {
-            setLoading(false);
-        }
+        } catch (error) { alert('오류 발생'); } finally { setLoading(false); }
     };
 
     const handleEditClick = (item: Asset) => {
@@ -167,9 +201,10 @@ export default function AdminPage() {
             </div>
 
             <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-8">
-                {/* 왼쪽 영역: 입력 폼 + 로그 모니터 */}
+                {/* 왼쪽 영역: 입력 폼 + 순서 변경 + 로그 모니터 */}
                 <div className="lg:col-span-2 space-y-8">
-                    {/* 입력 폼 */}
+
+                    {/* 1. 입력 폼 */}
                     <div className={`bg-white rounded-2xl shadow-xl border p-6 sticky top-8 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                             {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
@@ -225,7 +260,31 @@ export default function AdminPage() {
                         </div>
                     </div>
 
-                    {/* 📜 [추가됨] 로그 모니터 섹션 */}
+                    {/* ✨ 2. [추가됨] 카테고리 순서 관리 패널 */}
+                    <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-sm font-bold flex items-center gap-2 text-slate-800">🗂️ 메인화면 카테고리 순서 변경</h2>
+                            <button onClick={saveOrder} className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 transition-colors shadow-sm">
+                                <FiSave /> 순서 저장
+                            </button>
+                        </div>
+                        <div className="space-y-2">
+                            {categoryOrder.map((type, idx) => (
+                                <div key={type} className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100">
+                                    <span className="text-xs font-bold text-slate-600 pl-2">
+                                        <span className="text-indigo-400 mr-2">{idx + 1}</span>
+                                        {TYPE_LABELS[type]}
+                                    </span>
+                                    <div className="flex gap-1">
+                                        <button onClick={() => moveItem(idx, 'up')} disabled={idx === 0} className="p-1.5 hover:bg-white rounded border border-transparent hover:border-slate-200 disabled:opacity-30 text-slate-500 transition-colors" title="위로 올리기"><FiArrowUp /></button>
+                                        <button onClick={() => moveItem(idx, 'down')} disabled={idx === categoryOrder.length - 1} className="p-1.5 hover:bg-white rounded border border-transparent hover:border-slate-200 disabled:opacity-30 text-slate-500 transition-colors" title="아래로 내리기"><FiArrowDown /></button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* 3. 로그 모니터 섹션 */}
                     <div className="bg-slate-800 rounded-2xl shadow-xl p-6 text-white border border-slate-700">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-sm font-bold flex items-center gap-2 text-slate-300">
