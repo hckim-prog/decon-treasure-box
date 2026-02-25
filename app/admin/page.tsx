@@ -205,7 +205,7 @@ export default function AdminPage() {
                 <div className="lg:col-span-2 space-y-8">
 
                     {/* 1. 입력 폼 */}
-                    <div className={`bg-white rounded-2xl shadow-xl border p-6 sticky top-8 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
+                    <div className={`bg-white rounded-2xl shadow-xl border p-6 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
                         <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
                             {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
