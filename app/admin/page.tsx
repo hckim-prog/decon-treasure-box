@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
 
 // ✅ Apps Script 주소
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6JCrZqnS0nYAoourZqbkcXy4p4Nmof5H9MhWq2gu1xfk7grYWLy1yXlOFxZiAQP_q/exec';
 
 interface Asset {
     id: string;

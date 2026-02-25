@@ -3,13 +3,12 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-// ✅ [추가됨] NextAuth에서 로그인 정보 가져오기
 import { useSession, signIn } from "next-auth/react";
 import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
 
-// ✅ 주소 유지
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz8OBeLHiRgpxUNq1vaLmzyKrF-2JI-fQ72WTYcGu1QFYHiIt9IFQwIdnsbbDU1H4g/exec';
+// ✅ Apps Script 주소 (기존 주소 유지)
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6JCrZqnS0nYAoourZqbkcXy4p4Nmof5H9MhWq2gu1xfk7grYWLy1yXlOFxZiAQP_q/exec';
 
 type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
 interface Treasure {
@@ -18,8 +17,6 @@ interface Treasure {
 
 export default function Home() {
   const router = useRouter();
-
-  // 🕵️‍♂️ [핵심 수정] 구글 로그인 세션 정보 가져오기
   const { data: session, status } = useSession();
 
   const [treasures, setTreasures] = useState<Treasure[]>([]);
@@ -27,40 +24,36 @@ export default function Home() {
   const [filterType, setFilterType] = useState<TreasureType | 'ALL' | 'FAVORITE'>('ALL');
   const [isAdmin, setIsAdmin] = useState(false);
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [isLogSent, setIsLogSent] = useState(false); // 로그 중복 방지
+  const [isLogSent, setIsLogSent] = useState(false);
+
+  // ✨ [추가됨] 카테고리 순서를 관리하는 상태 (기본값 설정)
+  const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE']);
 
   useEffect(() => {
-    // 1. 로딩 중이면 대기
     if (status === 'loading') return;
 
-    // 2. 로그인이 안 되어 있다면? -> 구글 로그인 창 띄우기
     if (status === 'unauthenticated') {
-      signIn('google'); // 구글 로그인 강제 실행
+      signIn('google');
       return;
     }
 
-    // 3. 로그인이 확인되면 실행 (status === 'authenticated')
     if (session?.user?.email) {
-
-      // 관리자 권한 확인 (기존 방식 유지 + 이메일 확인도 가능)
       const adminStatus = sessionStorage.getItem('isAdmin');
       setIsAdmin(adminStatus === 'true');
 
-      // 데이터 가져오기
       fetchTreasures();
 
-      // 즐겨찾기 불러오기
+      // ✨ [추가됨] 구글 시트에서 저장된 카테고리 순서를 가져옵니다.
+      fetchCategoryOrder();
+
       const savedFavs = localStorage.getItem('myDeconFavorites');
       if (savedFavs) {
         setFavorites(JSON.parse(savedFavs));
       }
 
-      // 🕵️‍♂️ [로그 전송] 구글 이메일을 Apps Script로 보냅니다!
-      // (로그를 아직 안 보냈고, 관리자가 아닐 때만)
       if (!isLogSent && adminStatus !== 'true') {
         const params = new URLSearchParams();
         params.append('action', 'log');
-        // ✅ 'Visitor' 대신 진짜 구글 이메일을 보냅니다!
         params.append('user', session.user.email);
         params.append('act', '메인 페이지 접속');
 
@@ -70,13 +63,25 @@ export default function Home() {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: params.toString()
         });
-        setIsLogSent(true); // 전송 완료 체크 (중복 방지)
+        setIsLogSent(true);
       }
     }
+  }, [status, session]);
 
-  }, [status, session]); // 로그인 상태가 변하면 다시 실행
-
-  // ... (아래부터는 기존 코드와 100% 동일합니다) ...
+  // ✨ [추가됨] 구글 시트에서 순서를 읽어오는 함수
+  const fetchCategoryOrder = async () => {
+    try {
+      const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`);
+      const text = await res.text();
+      // 데이터가 정상적으로 있으면 쉼표로 잘라 배열로 만듭니다.
+      if (text && text !== "DEFAULT" && text.includes(',')) {
+        const newOrder = text.split(',') as TreasureType[];
+        setCategoryOrder(newOrder);
+      }
+    } catch (error) {
+      console.error("순서 로딩 실패:", error);
+    }
+  };
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -95,12 +100,9 @@ export default function Home() {
     try {
       const res = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
-
       if (Array.isArray(data)) {
         const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
         setTreasures(sortedData);
-      } else {
-        console.error("데이터 형식 오류 (배열이 아닙니다):", data);
       }
     } catch (error) {
       console.error("데이터 로딩 실패:", error);
@@ -165,8 +167,6 @@ export default function Home() {
     'SOFTWARE': { label: 'Desktop Apps', icon: <FiMonitor className="text-slate-500" size={22} /> },
   };
 
-  const categoryOrder: TreasureType[] = ['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'];
-
   const renderCard = (item: Treasure) => (
     <a key={item.id} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
       <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
@@ -212,7 +212,6 @@ export default function Home() {
     </a>
   );
 
-  // 🚪 로그인 체크 중이면 로딩 화면 (깜빡임 방지)
   if (status === 'loading') {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
   }
@@ -271,7 +270,8 @@ export default function Home() {
             </div>
 
             <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide flex-nowrap items-center">
-              {['ALL', 'FAVORITE', 'WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'].map(type => (
+              {/* ✨ [수정됨] 상단 탭 버튼도 categoryOrder 순서대로 나오게 변경 */}
+              {['ALL', 'FAVORITE', ...categoryOrder].map(type => (
                 <button key={type} onClick={() => setFilterType(type as any)}
                   className={`flex items-center gap-2 px-4 py-2 text-[11px] font-bold rounded-full transition-all border whitespace-nowrap flex-shrink-0
                     ${filterType === type
@@ -290,6 +290,7 @@ export default function Home() {
         <div className="space-y-16">
           {filterType === 'ALL' && (
             <>
+              {/* ✨ [수정됨] 메인 카테고리들도 categoryOrder 순서대로 화면에 그림 */}
               {categoryOrder.map((type) => {
                 const catItems = getFilteredItems(treasures, type);
                 if (catItems.length === 0) return null;
