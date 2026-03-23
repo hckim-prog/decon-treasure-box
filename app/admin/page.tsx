@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 // ✅ [추가됨] 위/아래 화살표, 저장 아이콘 추가
 import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
+import { ADMIN_CATEGORY_LABELS, DEFAULT_CATEGORY_ORDER, DEFAULT_TREASURE_TYPE, TreasureType, isTreasureType, normalizeCategoryOrder } from '@/lib/categories';
 
 // ✅ Apps Script 주소
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6JCrZqnS0nYAoourZqbkcXy4p4Nmof5H9MhWq2gu1xfk7grYWLy1yXlOFxZiAQP_q/exec';
@@ -23,24 +24,19 @@ interface Log {
 }
 
 // 🆕 [추가됨] 기본 카테고리 순서 & 화면에 보여줄 이름표
-const DEFAULT_ORDER = ['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE'];
-const TYPE_LABELS: any = {
-    'WEB_TOOL': 'ONLINE TOOLS',
-    'WEBSITE': 'PORTALS',
-    'DOC': 'DOCUMENTS',
-    'SOFTWARE': 'DESKTOP APPS'
-};
+const DEFAULT_ORDER = DEFAULT_CATEGORY_ORDER;
+const TYPE_LABELS = ADMIN_CATEGORY_LABELS;
 
 export default function AdminPage() {
     const router = useRouter();
     const [assets, setAssets] = useState<Asset[]>([]);
     const [logs, setLogs] = useState<Log[]>([]);
     const [loading, setLoading] = useState(false);
-    const [form, setForm] = useState({ title: '', description: '', type: 'WEB_TOOL', url: '' });
+    const [form, setForm] = useState<{ title: string; description: string; type: TreasureType; url: string }>({ title: '', description: '', type: DEFAULT_TREASURE_TYPE, url: '' });
     const [editingId, setEditingId] = useState<string | null>(null);
 
     // 🆕 [추가됨] 현재 카테고리 순서를 기억하는 공간
-    const [categoryOrder, setCategoryOrder] = useState<string[]>(DEFAULT_ORDER);
+    const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_ORDER);
 
     useEffect(() => {
         const checkAdmin = sessionStorage.getItem('isAdmin');
@@ -79,8 +75,8 @@ export default function AdminPage() {
         try {
             const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`);
             const text = await res.text();
-            if (text && text !== "DEFAULT" && text.includes(',')) {
-                setCategoryOrder(text.split(',')); // 쉼표로 잘라서 배열로 만듦
+            if (text && text !== "DEFAULT") {
+                setCategoryOrder(normalizeCategoryOrder(text.split(',')));
             }
         } catch (error) { console.error("순서 로딩 실패", error); }
     };
@@ -138,7 +134,7 @@ export default function AdminPage() {
             });
 
             alert(editingId ? '수정 요청을 보냈습니다!' : '등록 요청을 보냈습니다!');
-            setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
+            setForm({ title: '', description: '', type: DEFAULT_TREASURE_TYPE, url: '' });
             setEditingId(null);
             setTimeout(() => fetchAssets(), 2000);
         } catch (error) { console.error(error); alert('오류가 발생했습니다.'); } finally { setLoading(false); }
@@ -166,13 +162,18 @@ export default function AdminPage() {
 
     const handleEditClick = (item: Asset) => {
         setEditingId(item.id);
-        setForm({ title: item.title, description: item.description, type: item.type, url: item.url });
+        setForm({
+            title: item.title,
+            description: item.description,
+            type: isTreasureType(item.type) ? item.type : DEFAULT_TREASURE_TYPE,
+            url: item.url,
+        });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelEdit = () => {
         setEditingId(null);
-        setForm({ title: '', description: '', type: 'WEB_TOOL', url: '' });
+        setForm({ title: '', description: '', type: DEFAULT_TREASURE_TYPE, url: '' });
     };
 
     return (
@@ -235,11 +236,12 @@ export default function AdminPage() {
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-bold text-slate-500 mb-1">유형</label>
-                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as TreasureType })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
                                         <option value="WEB_TOOL">ONLINE TOOLS</option>
                                         <option value="WEBSITE">PORTALS</option>
                                         <option value="DOC">DOCUMENTS</option>
                                         <option value="SOFTWARE">DESKTOP APPS</option>
+                                        <option value="VIDEO">VIDEOS</option>
                                     </select>
                                 </div>
                                 <div>

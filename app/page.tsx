@@ -4,15 +4,19 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signIn } from "next-auth/react";
-import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar } from 'react-icons/fi';
+import { FiSearch, FiExternalLink, FiGrid, FiGlobe, FiFileText, FiMonitor, FiLayers, FiDownloadCloud, FiZap, FiStar, FiVideo } from 'react-icons/fi';
 import { RiAdminLine } from 'react-icons/ri';
+import { CATEGORY_LABELS, DEFAULT_CATEGORY_ORDER, TreasureType, normalizeCategoryOrder } from '@/lib/categories';
 
 // ✅ Apps Script 주소 (기존 주소 유지)
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx6JCrZqnS0nYAoourZqbkcXy4p4Nmof5H9MhWq2gu1xfk7grYWLy1yXlOFxZiAQP_q/exec';
 
-type TreasureType = 'WEB_TOOL' | 'WEBSITE' | 'DOC' | 'SOFTWARE';
 interface Treasure {
-  id: string; title: string; description: string; type: TreasureType; url: string;
+  id: string;
+  title: string;
+  description: string;
+  type: TreasureType;
+  url: string;
 }
 
 export default function Home() {
@@ -27,7 +31,7 @@ export default function Home() {
   const [isLogSent, setIsLogSent] = useState(false);
 
   // ✨ [추가됨] 카테고리 순서를 관리하는 상태 (기본값 설정)
-  const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(['WEB_TOOL', 'WEBSITE', 'DOC', 'SOFTWARE']);
+  const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_CATEGORY_ORDER);
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -73,10 +77,8 @@ export default function Home() {
     try {
       const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`);
       const text = await res.text();
-      // 데이터가 정상적으로 있으면 쉼표로 잘라 배열로 만듭니다.
-      if (text && text !== "DEFAULT" && text.includes(',')) {
-        const newOrder = text.split(',') as TreasureType[];
-        setCategoryOrder(newOrder);
+      if (text && text !== "DEFAULT") {
+        setCategoryOrder(normalizeCategoryOrder(text.split(',')));
       }
     } catch (error) {
       console.error("순서 로딩 실패:", error);
@@ -132,6 +134,7 @@ export default function Home() {
       case 'WEBSITE': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
       case 'SOFTWARE': return 'bg-slate-100 text-slate-600 border-slate-200';
       case 'DOC': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
+      case 'VIDEO': return 'bg-rose-50 text-rose-600 border-rose-100';
       default: return 'bg-gray-50 text-gray-500 border-gray-200';
     }
   };
@@ -144,6 +147,7 @@ export default function Home() {
       case 'WEBSITE': return <FiGlobe />;
       case 'DOC': return <FiFileText />;
       case 'SOFTWARE': return <FiMonitor />;
+      case 'VIDEO': return <FiVideo />;
       default: return <FiLayers />;
     }
   };
@@ -156,19 +160,21 @@ export default function Home() {
       case 'WEBSITE': return 'Portals';
       case 'DOC': return 'Documents';
       case 'SOFTWARE': return 'Desktop Apps';
+      case 'VIDEO': return 'Videos';
       default: return type;
     }
   };
 
   const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element }> = {
-    'WEB_TOOL': { label: 'Online Tools', icon: <FiGrid className="text-blue-500" size={22} /> },
-    'WEBSITE': { label: 'Portals & Sites', icon: <FiGlobe className="text-indigo-500" size={22} /> },
-    'DOC': { label: 'Documents', icon: <FiFileText className="text-emerald-500" size={22} /> },
-    'SOFTWARE': { label: 'Desktop Apps', icon: <FiMonitor className="text-slate-500" size={22} /> },
+    'WEB_TOOL': { label: CATEGORY_LABELS.WEB_TOOL, icon: <FiGrid className="text-blue-500" size={22} /> },
+    'WEBSITE': { label: CATEGORY_LABELS.WEBSITE, icon: <FiGlobe className="text-indigo-500" size={22} /> },
+    'DOC': { label: CATEGORY_LABELS.DOC, icon: <FiFileText className="text-emerald-500" size={22} /> },
+    'SOFTWARE': { label: CATEGORY_LABELS.SOFTWARE, icon: <FiMonitor className="text-slate-500" size={22} /> },
+    'VIDEO': { label: CATEGORY_LABELS.VIDEO, icon: <FiVideo className="text-rose-500" size={22} /> },
   };
 
   const renderCard = (item: Treasure) => (
-    <a key={item.id} href={item.url} target="_blank" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
+    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
       <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
         <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
           <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
@@ -182,7 +188,7 @@ export default function Home() {
 
       <div className="flex justify-between items-start mb-4 mt-1">
         <span className={`text-[10px] px-2.5 py-1 rounded-full border font-bold tracking-wider uppercase flex items-center gap-1.5 ${getTypeBadgeStyle(item.type)}`}>
-          {item.type === 'SOFTWARE' ? <FiDownloadCloud /> : <FiExternalLink />}
+          {item.type === 'SOFTWARE' ? <FiDownloadCloud /> : item.type === 'VIDEO' ? <FiVideo /> : <FiExternalLink />}
           {item.type === 'WEB_TOOL' ? 'TOOL' : item.type.replace('_', ' ')}
         </span>
         <button
