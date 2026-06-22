@@ -17,6 +17,7 @@ interface Treasure {
   description: string;
   type: TreasureType;
   url: string;
+  hidden?: boolean | string;
 }
 
 export default function Home() {
@@ -44,6 +45,9 @@ export default function Home() {
 
   // ✨ [추가됨] 카테고리 순서를 관리하는 상태 (기본값 설정)
   const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_CATEGORY_ORDER);
+
+  const isTreasureHidden = (treasure: Treasure) =>
+    treasure.hidden === true || String(treasure.hidden).toLowerCase() === 'true';
 
   const loadInitialData = async () => {
     try {
@@ -150,6 +154,8 @@ export default function Home() {
   const getFilteredItems = (items: Treasure[], type: TreasureType | 'ALL' | 'FAVORITE') => {
     return items.filter((item) => {
       if (!item.title) return false;
+      if (isTreasureHidden(item)) return false;
+
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.description.toLowerCase().includes(searchTerm.toLowerCase());
 

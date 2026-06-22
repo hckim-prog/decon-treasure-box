@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 // ✅ [추가됨] 위/아래 화살표, 저장 아이콘 추가
-import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity, FiArrowUp, FiArrowDown, FiSave } from 'react-icons/fi';
+import { FiTrash2, FiRefreshCw, FiHome, FiEdit2, FiX, FiCheck, FiActivity, FiArrowUp, FiArrowDown, FiSave, FiEye, FiEyeOff } from 'react-icons/fi';
 import { ADMIN_CATEGORY_LABELS, DEFAULT_CATEGORY_ORDER, DEFAULT_TREASURE_TYPE, TreasureType, isTreasureType, normalizeCategoryOrder } from '@/lib/categories';
 
 // ✅ Apps Script 주소
@@ -15,6 +15,7 @@ interface Asset {
     description: string;
     type: string;
     url: string;
+    hidden?: boolean | string;
 }
 
 interface Log {
@@ -37,6 +38,8 @@ export default function AdminPage() {
 
     // 🆕 [추가됨] 현재 카테고리 순서를 기억하는 공간
     const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_ORDER);
+
+    const isAssetHidden = (asset: Asset) => asset.hidden === true || String(asset.hidden).toLowerCase() === 'true';
 
     useEffect(() => {
         const checkAdmin = sessionStorage.getItem('isAdmin');
@@ -158,6 +161,37 @@ export default function AdminPage() {
             alert('삭제 요청을 보냈습니다.');
             setTimeout(() => fetchAssets(), 2000);
         } catch (error) { alert('오류 발생'); } finally { setLoading(false); }
+    };
+
+    const handleVisibilityToggle = async (item: Asset) => {
+        const nextHidden = !isAssetHidden(item);
+        const message = nextHidden
+            ? '이 자산을 메인페이지에서 숨기시겠습니까?'
+            : '이 자산을 메인페이지에 다시 표시하시겠습니까?';
+
+        if (!confirm(message)) return;
+        setLoading(true);
+
+        try {
+            const res = await fetch('/api/assets/visibility', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: item.id, hidden: nextHidden }),
+            });
+
+            if (!res.ok) throw new Error('Visibility update failed');
+
+            setAssets((currentAssets) =>
+                currentAssets.map((asset) =>
+                    asset.id === item.id ? { ...asset, hidden: nextHidden } : asset
+                )
+            );
+        } catch (error) {
+            console.error(error);
+            alert('숨김 상태 변경 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const handleEditClick = (item: Asset) => {
@@ -321,16 +355,20 @@ export default function AdminPage() {
                         </div>
                         <div className="space-y-4">
                             {assets.map((item) => (
-                                <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
+                                <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${isAssetHidden(item) ? 'opacity-60' : ''} ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
                                     <div className="flex-1 cursor-pointer" onClick={() => handleEditClick(item)}>
                                         <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>{item.title}</h3>
                                         <div className="flex items-center gap-2 mb-2">
                                             <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 uppercase">{item.type}</span>
+                                            {isAssetHidden(item) && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100 uppercase">숨김</span>}
                                             <span className="text-xs text-slate-400 truncate max-w-[200px] font-mono">{item.url}</span>
                                         </div>
                                         <p className="text-sm text-slate-500 line-clamp-1">{item.description}</p>
                                     </div>
                                     <div className="flex flex-col gap-2 ml-4">
+                                        <button onClick={() => handleVisibilityToggle(item)} disabled={loading} className={`p-2 rounded-full transition-all ${isAssetHidden(item) ? 'text-amber-500 hover:text-emerald-600 hover:bg-emerald-50' : 'text-slate-300 hover:text-amber-500 hover:bg-amber-50'}`} title={isAssetHidden(item) ? '메인페이지에 표시' : '메인페이지에서 숨기기'}>
+                                            {isAssetHidden(item) ? <FiEye size={16} /> : <FiEyeOff size={16} />}
+                                        </button>
                                         <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-all"><FiTrash2 size={16} /></button>
                                         <button onClick={() => handleEditClick(item)} className={`p-2 rounded-full transition-all ${editingId === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}><FiEdit2 size={16} /></button>
                                     </div>
