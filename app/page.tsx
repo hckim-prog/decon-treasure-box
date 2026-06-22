@@ -339,7 +339,7 @@ export default function Home() {
               />
             </div>
 
-            <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide flex-nowrap items-center">
+            <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 flex-nowrap items-center">
               {/* ✨ [수정됨] 상단 탭 버튼도 categoryOrder 순서대로 나오게 변경 */}
               {(['ALL', 'FAVORITE', ...categoryOrder] as Array<TreasureType | 'ALL' | 'FAVORITE'>).map(type => (
                 <button key={type} onClick={() => setFilterType(type)}
