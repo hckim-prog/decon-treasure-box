@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useSession, signIn } from "next-auth/react";
@@ -22,18 +22,59 @@ interface Treasure {
 export default function Home() {
   const router = useRouter();
   const { data: session, status } = useSession();
+  const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
 
   const [treasures, setTreasures] = useState<Treasure[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<TreasureType | 'ALL' | 'FAVORITE'>('ALL');
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [favorites, setFavorites] = useState<string[]>([]);
-  const [isLogSent, setIsLogSent] = useState(false);
+  const [isAdmin] = useState(() =>
+    typeof window !== 'undefined' && sessionStorage.getItem('isAdmin') === 'true'
+  );
+  const [favorites, setFavorites] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return [];
+
+    try {
+      const savedFavs = localStorage.getItem('myDeconFavorites');
+      return savedFavs ? JSON.parse(savedFavs) : [];
+    } catch {
+      return [];
+    }
+  });
+  const isLogSent = useRef(false);
 
   // ✨ [추가됨] 카테고리 순서를 관리하는 상태 (기본값 설정)
   const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_CATEGORY_ORDER);
 
+  const loadInitialData = async () => {
+    try {
+      const [treasureRes, orderRes] = await Promise.all([
+        fetch(APPS_SCRIPT_URL),
+        fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`),
+      ]);
+
+      const data = await treasureRes.json();
+      if (Array.isArray(data)) {
+        const sortedData = (data as Treasure[]).sort((a, b) => Number(b.id) - Number(a.id));
+        setTreasures(sortedData);
+      }
+
+      const orderText = await orderRes.text();
+      if (orderText && orderText !== "DEFAULT") {
+        setCategoryOrder(normalizeCategoryOrder(orderText.split(',')));
+      }
+    } catch (error) {
+      console.error("?곗씠??濡쒕뵫 ?ㅽ뙣:", error);
+    }
+  };
+
   useEffect(() => {
+    if (bypassAuth) {
+      const timer = window.setTimeout(() => {
+        loadInitialData();
+      }, 0);
+      return () => window.clearTimeout(timer);
+    }
+
     if (status === 'loading') return;
 
     if (status === 'unauthenticated') {
@@ -43,19 +84,14 @@ export default function Home() {
 
     if (session?.user?.email) {
       const adminStatus = sessionStorage.getItem('isAdmin');
-      setIsAdmin(adminStatus === 'true');
 
-      fetchTreasures();
+      window.setTimeout(() => {
+        loadInitialData();
+      }, 0);
 
       // ✨ [추가됨] 구글 시트에서 저장된 카테고리 순서를 가져옵니다.
-      fetchCategoryOrder();
 
-      const savedFavs = localStorage.getItem('myDeconFavorites');
-      if (savedFavs) {
-        setFavorites(JSON.parse(savedFavs));
-      }
-
-      if (!isLogSent && adminStatus !== 'true') {
+      if (!isLogSent.current && adminStatus !== 'true') {
         const params = new URLSearchParams();
         params.append('action', 'log');
         params.append('user', session.user.email);
@@ -67,13 +103,13 @@ export default function Home() {
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: params.toString()
         });
-        setIsLogSent(true);
+        isLogSent.current = true;
       }
     }
-  }, [status, session]);
+  }, [status, session, bypassAuth]);
 
   // ✨ [추가됨] 구글 시트에서 순서를 읽어오는 함수
-  const fetchCategoryOrder = async () => {
+  async function fetchCategoryOrder() {
     try {
       const res = await fetch(`${APPS_SCRIPT_URL}?action=getOrder&t=${Date.now()}`);
       const text = await res.text();
@@ -83,7 +119,7 @@ export default function Home() {
     } catch (error) {
       console.error("순서 로딩 실패:", error);
     }
-  };
+  }
 
   const toggleFavorite = (id: string, e: React.MouseEvent) => {
     e.preventDefault();
@@ -98,7 +134,7 @@ export default function Home() {
     localStorage.setItem('myDeconFavorites', JSON.stringify(newFavorites));
   };
 
-  const fetchTreasures = async () => {
+  async function fetchTreasures() {
     try {
       const res = await fetch(APPS_SCRIPT_URL);
       const data = await res.json();
@@ -109,7 +145,7 @@ export default function Home() {
     } catch (error) {
       console.error("데이터 로딩 실패:", error);
     }
-  };
+  }
 
   const getFilteredItems = (items: Treasure[], type: TreasureType | 'ALL' | 'FAVORITE') => {
     return items.filter((item) => {
@@ -218,7 +254,7 @@ export default function Home() {
     </a>
   );
 
-  if (status === 'loading') {
+  if (!bypassAuth && status === 'loading') {
     return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
   }
 
@@ -277,8 +313,8 @@ export default function Home() {
 
             <div className="flex gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 scrollbar-hide flex-nowrap items-center">
               {/* ✨ [수정됨] 상단 탭 버튼도 categoryOrder 순서대로 나오게 변경 */}
-              {['ALL', 'FAVORITE', ...categoryOrder].map(type => (
-                <button key={type} onClick={() => setFilterType(type as any)}
+              {(['ALL', 'FAVORITE', ...categoryOrder] as Array<TreasureType | 'ALL' | 'FAVORITE'>).map(type => (
+                <button key={type} onClick={() => setFilterType(type)}
                   className={`flex items-center gap-2 px-4 py-2 text-[11px] font-bold rounded-full transition-all border whitespace-nowrap flex-shrink-0
                     ${filterType === type
                       ? type === 'FAVORITE'

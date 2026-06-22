@@ -5,8 +5,13 @@ import { useSession, signIn } from "next-auth/react";
 import { FiLock, FiLoader } from "react-icons/fi";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
+    const bypassAuth = process.env.NEXT_PUBLIC_BYPASS_AUTH === 'true';
     // 로그인 상태 확인 (로딩중, 성공, 실패)
     const { status } = useSession();
+
+    if (bypassAuth) {
+        return <>{children}</>;
+    }
 
     // 1. 확인 중 (로딩 화면)
     if (status === "loading") {
