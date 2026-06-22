@@ -24,6 +24,8 @@ interface Log {
     act: string;
 }
 
+type VisibilityFilter = 'ALL' | 'VISIBLE' | 'HIDDEN';
+
 // 🆕 [추가됨] 기본 카테고리 순서 & 화면에 보여줄 이름표
 const DEFAULT_ORDER = DEFAULT_CATEGORY_ORDER;
 const TYPE_LABELS = ADMIN_CATEGORY_LABELS;
@@ -35,11 +37,19 @@ export default function AdminPage() {
     const [loading, setLoading] = useState(false);
     const [form, setForm] = useState<{ title: string; description: string; type: TreasureType; url: string }>({ title: '', description: '', type: DEFAULT_TREASURE_TYPE, url: '' });
     const [editingId, setEditingId] = useState<string | null>(null);
+    const [visibilityFilter, setVisibilityFilter] = useState<VisibilityFilter>('ALL');
 
     // 🆕 [추가됨] 현재 카테고리 순서를 기억하는 공간
     const [categoryOrder, setCategoryOrder] = useState<TreasureType[]>(DEFAULT_ORDER);
 
     const isAssetHidden = (asset: Asset) => asset.hidden === true || String(asset.hidden).toLowerCase() === 'true';
+    const visibleAssets = assets.filter((asset) => !isAssetHidden(asset));
+    const hiddenAssets = assets.filter(isAssetHidden);
+    const filteredAssets = visibilityFilter === 'HIDDEN'
+        ? hiddenAssets
+        : visibilityFilter === 'VISIBLE'
+            ? visibleAssets
+            : assets;
 
     useEffect(() => {
         const checkAdmin = sessionStorage.getItem('isAdmin');
@@ -347,14 +357,31 @@ export default function AdminPage() {
                 {/* 오른쪽 영역: 자산 목록 */}
                 <div className="lg:col-span-3">
                     <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[600px]">
-                        <div className="flex justify-between items-center mb-6 pb-4 border-b border-slate-100">
-                            <h2 className="text-lg font-bold text-slate-800">등록된 자산 ({assets.length})</h2>
-                            <button onClick={fetchAssets} className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">
-                                <FiRefreshCw /> 새로고침
-                            </button>
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
+                            <h2 className="text-lg font-bold text-slate-800">등록된 자산 ({filteredAssets.length}/{assets.length})</h2>
+                            <div className="flex flex-wrap items-center gap-2">
+                                {([
+                                    ['ALL', `전체 ${assets.length}`],
+                                    ['VISIBLE', `공개 ${visibleAssets.length}`],
+                                    ['HIDDEN', `숨김 ${hiddenAssets.length}`],
+                                ] as Array<[VisibilityFilter, string]>).map(([value, label]) => (
+                                    <button
+                                        key={value}
+                                        onClick={() => setVisibilityFilter(value)}
+                                        className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${visibilityFilter === value
+                                            ? 'bg-slate-800 text-white border-slate-800'
+                                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:text-slate-700'}`}
+                                    >
+                                        {label}
+                                    </button>
+                                ))}
+                                <button onClick={fetchAssets} className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">
+                                    <FiRefreshCw /> 새로고침
+                                </button>
+                            </div>
                         </div>
                         <div className="space-y-4">
-                            {assets.map((item) => (
+                            {filteredAssets.map((item) => (
                                 <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${isAssetHidden(item) ? 'opacity-60' : ''} ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
                                     <div className="flex-1 cursor-pointer" onClick={() => handleEditClick(item)}>
                                         <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>{item.title}</h3>
@@ -374,7 +401,7 @@ export default function AdminPage() {
                                     </div>
                                 </div>
                             ))}
-                            {assets.length === 0 && <div className="text-center py-20 text-slate-400"><p>등록된 자산이 없습니다.</p></div>}
+                            {filteredAssets.length === 0 && <div className="text-center py-20 text-slate-400"><p>표시할 자산이 없습니다.</p></div>}
                         </div>
                     </div>
                 </div>

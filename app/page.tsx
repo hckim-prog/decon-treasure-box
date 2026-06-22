@@ -17,6 +17,7 @@ interface Treasure {
   description: string;
   type: TreasureType;
   url: string;
+  updatedAt?: string;
   hidden?: boolean | string;
 }
 
@@ -48,6 +49,21 @@ export default function Home() {
 
   const isTreasureHidden = (treasure: Treasure) =>
     treasure.hidden === true || String(treasure.hidden).toLowerCase() === 'true';
+
+  const formatUpdatedAt = (value?: string) => {
+    if (!value) return '';
+
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) {
+      return date.toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    }
+
+    return value.split(' ')[0] || value;
+  };
 
   const loadInitialData = async () => {
     try {
@@ -248,6 +264,12 @@ export default function Home() {
       <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors relative z-10">
         {item.title}
       </h3>
+
+      {formatUpdatedAt(item.updatedAt) && (
+        <p className="text-[11px] text-slate-400 font-medium relative z-10">
+          최종 업데이트: {formatUpdatedAt(item.updatedAt)}
+        </p>
+      )}
 
       <div className="flex-grow"></div>
 
