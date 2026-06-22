@@ -33,27 +33,27 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
-            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm border border-slate-200">
+        <div className="min-h-screen bg-[#fff8ec] flex items-center justify-center p-4">
+            <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm border border-[#ffe9ce]">
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-slate-800">Admin Access</h1>
-                    <p className="text-xs text-slate-500 mt-2">관리자 권한이 필요한 페이지입니다.</p>
+                    <h1 className="text-2xl font-bold text-[#18305f]">Admin Access</h1>
+                    <p className="text-xs text-[#546a7b] mt-2">관리자 권한이 필요한 페이지입니다.</p>
                 </div>
 
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">ID</label>
-                        <input type="text" required className="w-full p-3 bg-slate-50 border border-slate-300 rounded text-sm outline-none" value={id} onChange={(e) => setId(e.target.value)} />
+                        <label className="block text-xs font-bold text-[#546a7b] mb-1">ID</label>
+                        <input type="text" required className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded text-sm outline-none focus:ring-2 focus:ring-[#3777ff]" value={id} onChange={(e) => setId(e.target.value)} />
                     </div>
                     <div>
-                        <label className="block text-xs font-bold text-slate-500 mb-1">PASSWORD</label>
-                        <input type="password" required className="w-full p-3 bg-slate-50 border border-slate-300 rounded text-sm outline-none" value={pw} onChange={(e) => setPw(e.target.value)} />
+                        <label className="block text-xs font-bold text-[#546a7b] mb-1">PASSWORD</label>
+                        <input type="password" required className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded text-sm outline-none focus:ring-2 focus:ring-[#3777ff]" value={pw} onChange={(e) => setPw(e.target.value)} />
                     </div>
-                    <button type="submit" className="w-full bg-slate-900 text-white py-3 rounded font-bold text-sm hover:bg-slate-800 transition-colors mt-4">Sign In</button>
+                    <button type="submit" className="w-full bg-[#18305f] text-white py-3 rounded font-bold text-sm hover:bg-[#3777ff] transition-colors mt-4">Sign In</button>
                 </form>
 
                 <div className="mt-6 text-center">
-                    <button onClick={() => router.push('/')} className="text-xs text-slate-400 hover:underline">메인으로 돌아가기</button>
+                    <button onClick={() => router.push('/')} className="text-xs text-[#7b8796] hover:text-[#3777ff] hover:underline">메인으로 돌아가기</button>
                 </div>
             </div>
         </div>

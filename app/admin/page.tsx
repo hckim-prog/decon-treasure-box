@@ -221,15 +221,15 @@ export default function AdminPage() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 p-6 md:p-12 font-sans">
+        <div className="min-h-screen bg-[#fff8ec] p-6 md:p-12 font-sans">
             {/* 헤더 */}
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
-                    <p className="text-slate-500 text-sm mt-1">디콘팀 자산 관리자 페이지 (Real-time)</p>
+                    <h1 className="text-3xl font-bold text-[#18305f]">Admin Dashboard</h1>
+                    <p className="text-[#546a7b] text-sm mt-1">디콘팀 자산 관리자 페이지 (Real-time)</p>
                 </div>
                 <div className="flex gap-3">
-                    <button onClick={() => router.push('/')} className="flex items-center gap-2 bg-white border border-slate-300 px-4 py-2 rounded-lg text-slate-600 hover:bg-slate-50 text-sm font-bold shadow-sm transition-all">
+                    <button onClick={() => router.push('/')} className="flex items-center gap-2 bg-white border border-[#ffe9ce] px-4 py-2 rounded-lg text-[#546a7b] hover:bg-[#fff2dc] text-sm font-bold shadow-sm transition-all">
                         <FiHome /> 메인으로
                     </button>
                     <button
@@ -250,37 +250,37 @@ export default function AdminPage() {
                 <div className="lg:col-span-2 space-y-8">
 
                     {/* 1. 입력 폼 */}
-                    <div className={`bg-white rounded-2xl shadow-xl border p-6 transition-colors duration-300 ${editingId ? 'border-indigo-500 ring-2 ring-indigo-100' : 'border-slate-200'}`}>
-                        <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
-                            {editingId ? <><FiEdit2 className="text-indigo-600" /> 자산 수정</> : '새 자산 등록'}
+                    <div className={`bg-white rounded-2xl shadow-xl border p-6 transition-colors duration-300 ${editingId ? 'border-[#3777ff] ring-2 ring-[#3777ff]/10' : 'border-[#ffe9ce]'}`}>
+                        <h2 className="text-xl font-bold text-[#18305f] mb-6 flex items-center gap-2">
+                            {editingId ? <><FiEdit2 className="text-[#3777ff]" /> 자산 수정</> : '새 자산 등록'}
                         </h2>
 
                         {!editingId && (
                             <div className="space-y-3 mb-6">
-                                <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4">
-                                    <p className="text-xs text-indigo-700 font-bold mb-1">📂 Desktop Apps 저장소:</p>
-                                    <a href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR" target="_blank" rel="noopener noreferrer" className="text-xs text-indigo-500 hover:underline flex items-center gap-1">구글 드라이브 바로가기 ↗</a>
+                                <div className="bg-[#eef4ff] border border-[#c9d9ff] rounded-xl p-4">
+                                    <p className="text-xs text-[#255ed3] font-bold mb-1">📂 Desktop Apps 저장소:</p>
+                                    <a href="https://drive.google.com/drive/folders/19GeBX8Pjk3i1nM7aNecBLC201aCPyvkR" target="_blank" rel="noopener noreferrer" className="text-xs text-[#3777ff] hover:underline flex items-center gap-1">구글 드라이브 바로가기 ↗</a>
                                 </div>
-                                <div className="bg-green-50 border border-green-100 rounded-xl p-4">
-                                    <p className="text-xs text-green-700 font-bold mb-1">🔐 사이트 로그인 계정 관리:</p>
-                                    <a href="https://docs.google.com/spreadsheets/d/1rvqMu614aoQ6eRdutoL1rlvUx3IoX6hOBK_gFq0mO4I/edit?gid=446313469#gid=446313469" target="_blank" rel="noopener noreferrer" className="text-xs text-green-600 hover:underline flex items-center gap-1 font-bold">구글 스프레드시트 열기 ↗</a>
+                                <div className="bg-[#fff7c8] border border-[#ffe156]/70 rounded-xl p-4">
+                                    <p className="text-xs text-[#8a7110] font-bold mb-1">🔐 사이트 로그인 계정 관리:</p>
+                                    <a href="https://docs.google.com/spreadsheets/d/1rvqMu614aoQ6eRdutoL1rlvUx3IoX6hOBK_gFq0mO4I/edit?gid=446313469#gid=446313469" target="_blank" rel="noopener noreferrer" className="text-xs text-[#8a7110] hover:underline flex items-center gap-1 font-bold">구글 스프레드시트 열기 ↗</a>
                                 </div>
                             </div>
                         )}
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">제목</label>
-                                <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="제목 입력" />
+                                <label className="block text-xs font-bold text-[#546a7b] mb-1">제목</label>
+                                <input type="text" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded-lg text-sm text-[#18305f] placeholder:text-[#b7a999] focus:ring-2 focus:ring-[#3777ff] outline-none" placeholder="제목 입력" />
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-slate-500 mb-1">설명</label>
-                                <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none resize-none" placeholder="설명 입력" />
+                                <label className="block text-xs font-bold text-[#546a7b] mb-1">설명</label>
+                                <textarea rows={3} value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded-lg text-sm text-[#18305f] placeholder:text-[#b7a999] focus:ring-2 focus:ring-[#3777ff] outline-none resize-none" placeholder="설명 입력" />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">유형</label>
-                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as TreasureType })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
+                                    <label className="block text-xs font-bold text-[#546a7b] mb-1">유형</label>
+                                    <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value as TreasureType })} className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded-lg text-sm text-[#18305f] focus:ring-2 focus:ring-[#3777ff] outline-none">
                                         <option value="WEB_TOOL">ONLINE TOOLS</option>
                                         <option value="WEBSITE">PORTALS</option>
                                         <option value="DOC">DOCUMENTS</option>
@@ -289,36 +289,36 @@ export default function AdminPage() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="block text-xs font-bold text-slate-500 mb-1">URL</label>
-                                    <input type="text" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="https://..." />
+                                    <label className="block text-xs font-bold text-[#546a7b] mb-1">URL</label>
+                                    <input type="text" value={form.url} onChange={e => setForm({ ...form, url: e.target.value })} className="w-full p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded-lg text-sm text-[#18305f] placeholder:text-[#b7a999] focus:ring-2 focus:ring-[#3777ff] outline-none" placeholder="https://..." />
                                 </div>
                             </div>
                             <div className="pt-4 flex gap-2">
                                 {editingId ? (
                                     <>
-                                        <button onClick={handleSubmit} disabled={loading} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg shadow-indigo-200">{loading ? '저장 중...' : <><FiCheck /> 수정사항 저장</>}</button>
-                                        <button onClick={handleCancelEdit} className="bg-slate-200 hover:bg-slate-300 text-slate-600 px-4 py-3 rounded-lg font-bold text-sm">취소</button>
+                                        <button onClick={handleSubmit} disabled={loading} className="flex-1 bg-[#3777ff] hover:bg-[#255ed3] text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg shadow-[#3777ff]/20">{loading ? '저장 중...' : <><FiCheck /> 수정사항 저장</>}</button>
+                                        <button onClick={handleCancelEdit} className="bg-[#ffe9ce] hover:bg-[#ffddb8] text-[#546a7b] px-4 py-3 rounded-lg font-bold text-sm">취소</button>
                                     </>
                                 ) : (
-                                    <button onClick={handleSubmit} disabled={loading} className="w-full bg-slate-900 hover:bg-black text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg">{loading ? '처리 중...' : '등록하기'}</button>
+                                    <button onClick={handleSubmit} disabled={loading} className="w-full bg-[#18305f] hover:bg-[#3777ff] text-white py-3 rounded-lg font-bold text-sm flex justify-center items-center gap-2 shadow-lg">{loading ? '처리 중...' : '등록하기'}</button>
                                 )}
                             </div>
                         </div>
                     </div>
 
                     {/* ✨ 2. [추가됨] 카테고리 순서 관리 패널 */}
-                    <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6">
+                    <div className="bg-white rounded-2xl shadow-md border border-[#ffe9ce] p-6">
                         <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-sm font-bold flex items-center gap-2 text-slate-800">🗂️ 메인화면 카테고리 순서 변경</h2>
-                            <button onClick={saveOrder} className="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 transition-colors shadow-sm">
+                            <h2 className="text-sm font-bold flex items-center gap-2 text-[#18305f]">🗂️ 메인화면 카테고리 순서 변경</h2>
+                            <button onClick={saveOrder} className="text-xs bg-[#3777ff] hover:bg-[#255ed3] text-white px-3 py-1.5 rounded-lg font-bold flex items-center gap-1 transition-colors shadow-sm">
                                 <FiSave /> 순서 저장
                             </button>
                         </div>
                         <div className="space-y-2">
                             {categoryOrder.map((type, idx) => (
-                                <div key={type} className="flex items-center justify-between bg-slate-50 p-2 rounded-lg border border-slate-100">
-                                    <span className="text-xs font-bold text-slate-600 pl-2">
-                                        <span className="text-indigo-400 mr-2">{idx + 1}</span>
+                                <div key={type} className="flex items-center justify-between bg-[#fff8ec] p-2 rounded-lg border border-[#ffe9ce]">
+                                    <span className="text-xs font-bold text-[#546a7b] pl-2">
+                                        <span className="text-[#3777ff] mr-2">{idx + 1}</span>
                                         {TYPE_LABELS[type]}
                                     </span>
                                     <div className="flex gap-1">
@@ -331,7 +331,7 @@ export default function AdminPage() {
                     </div>
 
                     {/* 3. 로그 모니터 섹션 */}
-                    <div className="bg-slate-800 rounded-2xl shadow-xl p-6 text-white border border-slate-700">
+                    <div className="bg-[#18305f] rounded-2xl shadow-xl p-6 text-white border border-[#24457f]">
                         <div className="flex justify-between items-center mb-4">
                             <h2 className="text-sm font-bold flex items-center gap-2 text-slate-300">
                                 <FiActivity className="text-green-400" /> 최근 접속 로그 (50건)
@@ -356,9 +356,9 @@ export default function AdminPage() {
 
                 {/* 오른쪽 영역: 자산 목록 */}
                 <div className="lg:col-span-3">
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 min-h-[600px]">
-                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-4 border-b border-slate-100">
-                            <h2 className="text-lg font-bold text-slate-800">등록된 자산 ({filteredAssets.length}/{assets.length})</h2>
+                    <div className="bg-white rounded-2xl shadow-sm border border-[#ffe9ce] p-6 min-h-[600px]">
+                        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6 pb-4 border-b border-[#ffe9ce]">
+                            <h2 className="text-lg font-bold text-[#18305f]">등록된 자산 ({filteredAssets.length}/{assets.length})</h2>
                             <div className="flex flex-wrap items-center gap-2">
                                 {([
                                     ['ALL', `전체 ${assets.length}`],
@@ -369,39 +369,39 @@ export default function AdminPage() {
                                         key={value}
                                         onClick={() => setVisibilityFilter(value)}
                                         className={`px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${visibilityFilter === value
-                                            ? 'bg-slate-800 text-white border-slate-800'
-                                            : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:text-slate-700'}`}
+                                            ? 'bg-[#18305f] text-white border-[#18305f]'
+                                            : 'bg-white text-[#546a7b] border-[#ffe9ce] hover:bg-[#fff8ec] hover:text-[#18305f]'}`}
                                     >
                                         {label}
                                     </button>
                                 ))}
-                                <button onClick={fetchAssets} className="flex items-center gap-1 text-xs font-bold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full hover:bg-indigo-100 transition-colors">
+                                <button onClick={fetchAssets} className="flex items-center gap-1 text-xs font-bold text-[#255ed3] bg-[#eef4ff] px-3 py-1.5 rounded-full hover:bg-[#dfe9ff] transition-colors">
                                     <FiRefreshCw /> 새로고침
                                 </button>
                             </div>
                         </div>
                         <div className="space-y-4">
                             {filteredAssets.map((item) => (
-                                <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${isAssetHidden(item) ? 'opacity-60' : ''} ${editingId === item.id ? 'bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200' : 'bg-white border-slate-100 hover:border-slate-300'}`}>
+                                <div key={item.id} className={`group relative p-5 rounded-xl border transition-all duration-200 hover:shadow-md flex justify-between items-start ${isAssetHidden(item) ? 'opacity-60' : ''} ${editingId === item.id ? 'bg-[#eef4ff] border-[#c9d9ff] ring-1 ring-[#3777ff]/20' : 'bg-white border-[#fff0d8] hover:border-[#ffbe86]'}`}>
                                     <div className="flex-1 cursor-pointer" onClick={() => handleEditClick(item)}>
-                                        <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-indigo-700' : 'text-slate-800'}`}>{item.title}</h3>
+                                        <h3 className={`font-bold text-base mb-1 ${editingId === item.id ? 'text-[#255ed3]' : 'text-[#18305f]'}`}>{item.title}</h3>
                                         <div className="flex items-center gap-2 mb-2">
-                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-500 border border-slate-200 uppercase">{item.type}</span>
+                                            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#f4f7ff] text-[#546a7b] border border-[#d9e3f7] uppercase">{item.type}</span>
                                             {isAssetHidden(item) && <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 text-amber-600 border border-amber-100 uppercase">숨김</span>}
-                                            <span className="text-xs text-slate-400 truncate max-w-[200px] font-mono">{item.url}</span>
+                                            <span className="text-xs text-[#9aa7b6] truncate max-w-[200px] font-mono">{item.url}</span>
                                         </div>
-                                        <p className="text-sm text-slate-500 line-clamp-1">{item.description}</p>
+                                        <p className="text-sm text-[#546a7b] line-clamp-1">{item.description}</p>
                                     </div>
                                     <div className="flex flex-col gap-2 ml-4">
                                         <button onClick={() => handleVisibilityToggle(item)} disabled={loading} className={`p-2 rounded-full transition-all ${isAssetHidden(item) ? 'text-amber-500 hover:text-emerald-600 hover:bg-emerald-50' : 'text-slate-300 hover:text-amber-500 hover:bg-amber-50'}`} title={isAssetHidden(item) ? '메인페이지에 표시' : '메인페이지에서 숨기기'}>
                                             {isAssetHidden(item) ? <FiEye size={16} /> : <FiEyeOff size={16} />}
                                         </button>
                                         <button onClick={() => handleDelete(item.id)} className="text-slate-300 hover:text-rose-500 p-2 hover:bg-rose-50 rounded-full transition-all"><FiTrash2 size={16} /></button>
-                                        <button onClick={() => handleEditClick(item)} className={`p-2 rounded-full transition-all ${editingId === item.id ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-300 hover:text-indigo-600 hover:bg-indigo-50'}`}><FiEdit2 size={16} /></button>
+                                        <button onClick={() => handleEditClick(item)} className={`p-2 rounded-full transition-all ${editingId === item.id ? 'bg-[#3777ff] text-white shadow-md' : 'text-slate-300 hover:text-[#3777ff] hover:bg-[#eef4ff]'}`}><FiEdit2 size={16} /></button>
                                     </div>
                                 </div>
                             ))}
-                            {filteredAssets.length === 0 && <div className="text-center py-20 text-slate-400"><p>표시할 자산이 없습니다.</p></div>}
+                            {filteredAssets.length === 0 && <div className="text-center py-20 text-[#9aa7b6]"><p>표시할 자산이 없습니다.</p></div>}
                         </div>
                     </div>
                 </div>

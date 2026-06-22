@@ -188,12 +188,12 @@ export default function Home() {
 
   const getTypeBadgeStyle = (type: string) => {
     switch (type?.trim()) {
-      case 'WEB_TOOL': return 'bg-blue-50 text-blue-600 border-blue-100';
-      case 'WEBSITE': return 'bg-indigo-50 text-indigo-600 border-indigo-100';
-      case 'SOFTWARE': return 'bg-slate-100 text-slate-600 border-slate-200';
-      case 'DOC': return 'bg-emerald-50 text-emerald-600 border-emerald-100';
-      case 'VIDEO': return 'bg-rose-50 text-rose-600 border-rose-100';
-      default: return 'bg-gray-50 text-gray-500 border-gray-200';
+      case 'WEB_TOOL': return 'bg-[#eaf1ff] text-[#255ed3] border-[#c9d9ff]';
+      case 'WEBSITE': return 'bg-[#ffe9ce] text-[#9a4f16] border-[#ffbe86]/60';
+      case 'SOFTWARE': return 'bg-[#f4f7ff] text-[#546a7b] border-[#d9e3f7]';
+      case 'DOC': return 'bg-[#fff7c8] text-[#8a7110] border-[#ffe156]/70';
+      case 'VIDEO': return 'bg-[#fff0f3] text-[#b94d66] border-[#ffb5c2]';
+      default: return 'bg-[#f8fafc] text-[#546a7b] border-[#d9e3f7]';
     }
   };
 
@@ -224,25 +224,25 @@ export default function Home() {
   };
 
   const categoryConfig: Record<TreasureType, { label: string; icon: JSX.Element }> = {
-    'WEB_TOOL': { label: CATEGORY_LABELS.WEB_TOOL, icon: <FiGrid className="text-blue-500" size={22} /> },
-    'WEBSITE': { label: CATEGORY_LABELS.WEBSITE, icon: <FiGlobe className="text-indigo-500" size={22} /> },
-    'DOC': { label: CATEGORY_LABELS.DOC, icon: <FiFileText className="text-emerald-500" size={22} /> },
-    'SOFTWARE': { label: CATEGORY_LABELS.SOFTWARE, icon: <FiMonitor className="text-slate-500" size={22} /> },
-    'VIDEO': { label: CATEGORY_LABELS.VIDEO, icon: <FiVideo className="text-rose-500" size={22} /> },
+    'WEB_TOOL': { label: CATEGORY_LABELS.WEB_TOOL, icon: <FiGrid className="text-[#3777ff]" size={22} /> },
+    'WEBSITE': { label: CATEGORY_LABELS.WEBSITE, icon: <FiGlobe className="text-[#ff9f5c]" size={22} /> },
+    'DOC': { label: CATEGORY_LABELS.DOC, icon: <FiFileText className="text-[#d6ae00]" size={22} /> },
+    'SOFTWARE': { label: CATEGORY_LABELS.SOFTWARE, icon: <FiMonitor className="text-[#546a7b]" size={22} /> },
+    'VIDEO': { label: CATEGORY_LABELS.VIDEO, icon: <FiVideo className="text-[#ff7e99]" size={22} /> },
   };
 
   const renderCard = (item: Treasure) => (
-    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="group relative bg-white rounded-2xl p-6 border border-slate-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.05)] hover:shadow-[0_10px_30px_-10px_rgba(79,70,229,0.15)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
+    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="group relative bg-white rounded-2xl p-6 border border-[#ffe9ce] shadow-[0_2px_10px_-4px_rgba(84,106,123,0.16)] hover:shadow-[0_14px_34px_-16px_rgba(55,119,255,0.32)] hover:-translate-y-1 transition-all duration-300 flex flex-col h-full overflow-visible">
       <div className="absolute left-6 right-6 top-[4.5rem] z-30 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 pointer-events-none">
-        <div className="bg-slate-800/95 backdrop-blur-md text-slate-100 text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
-          <div className="absolute -top-1.5 left-4 w-3 h-3 bg-slate-800/95 border-t border-l border-white/10 transform rotate-45"></div>
-          <p className="leading-relaxed font-medium text-slate-200">
+        <div className="bg-[#18305f]/95 backdrop-blur-md text-white text-xs p-4 rounded-xl shadow-2xl border border-white/10 relative">
+          <div className="absolute -top-1.5 left-4 w-3 h-3 bg-[#18305f]/95 border-t border-l border-white/10 transform rotate-45"></div>
+          <p className="leading-relaxed font-medium text-[#fff7ec]">
             {item.description || "설명이 없습니다."}
           </p>
         </div>
       </div>
 
-      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-100 to-slate-200 group-hover:from-indigo-500 group-hover:to-cyan-400 transition-all duration-500 rounded-t-2xl"></div>
+      <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#ffe9ce] to-[#ffb5c2]/70 group-hover:from-[#3777ff] group-hover:to-[#ffbe86] transition-all duration-500 rounded-t-2xl"></div>
 
       <div className="flex justify-between items-start mb-4 mt-1">
         <span className={`text-[10px] px-2.5 py-1 rounded-full border font-bold tracking-wider uppercase flex items-center gap-1.5 ${getTypeBadgeStyle(item.type)}`}>
@@ -251,31 +251,31 @@ export default function Home() {
         </span>
         <button
           onClick={(e) => toggleFavorite(item.id, e)}
-          className="w-8 h-8 rounded-full bg-slate-50 hover:bg-indigo-50 flex items-center justify-center transition-colors z-20 cursor-pointer"
+          className="w-8 h-8 rounded-full bg-[#fff8ec] hover:bg-[#fff2dc] flex items-center justify-center transition-colors z-20 cursor-pointer"
           title="즐겨찾기 추가/해제"
         >
           <FiStar
-            className={`text-sm transition-colors ${favorites.includes(item.id) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-300 group-hover:text-indigo-300'}`}
+            className={`text-sm transition-colors ${favorites.includes(item.id) ? 'text-[#ffe156] fill-[#ffe156]' : 'text-[#c7d0dc] group-hover:text-[#ffbe86]'}`}
             size={16}
           />
         </button>
       </div>
 
-      <h3 className="font-bold text-lg text-slate-800 mb-2 leading-tight group-hover:text-indigo-600 transition-colors relative z-10">
+      <h3 className="font-bold text-lg text-[#18305f] mb-2 leading-tight group-hover:text-[#3777ff] transition-colors relative z-10">
         {item.title}
       </h3>
 
       {formatUpdatedAt(item.updatedAt) && (
-        <p className="text-[11px] text-slate-400 font-medium relative z-10">
+        <p className="text-[11px] text-[#7b8796] font-medium relative z-10">
           최종 업데이트: {formatUpdatedAt(item.updatedAt)}
         </p>
       )}
 
       <div className="flex-grow"></div>
 
-      <div className="mt-6 pt-4 border-t border-slate-50 flex justify-end">
-        <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-slate-50 text-slate-600 text-xs font-bold transition-all duration-300 hover:bg-indigo-600 hover:text-white hover:shadow-md cursor-pointer leading-none relative z-20">
-          <FiZap className="text-indigo-500 text-sm transition-colors group-hover/btn:text-white" />
+      <div className="mt-6 pt-4 border-t border-[#fff3de] flex justify-end">
+        <span className="group/btn flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#eef4ff] text-[#255ed3] text-xs font-bold transition-all duration-300 hover:bg-[#3777ff] hover:text-white hover:shadow-md cursor-pointer leading-none relative z-20">
+          <FiZap className="text-[#3777ff] text-sm transition-colors group-hover/btn:text-white" />
           바로가기
         </span>
       </div>
@@ -283,42 +283,42 @@ export default function Home() {
   );
 
   if (!bypassAuth && status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-[#fff8ec] text-[#7b8796]">Loading...</div>;
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      <div className="relative w-full h-[400px] bg-slate-900 overflow-hidden flex flex-col justify-center items-center text-center px-4">
+    <main className="min-h-screen bg-[#fff8ec] font-sans selection:bg-[#ffe156]/60 selection:text-[#18305f]">
+      <div className="relative w-full h-[400px] bg-[#18305f] overflow-hidden flex flex-col justify-center items-center text-center px-4">
         <iframe
           src='https://my.spline.design/boxeshover-bh1N84ii3IdAYEwcUbzpQj5W/'
           frameBorder='0' width='100%' height='100%' className="absolute inset-0 w-full h-full z-0"
         ></iframe>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/60 to-slate-900/90 pointer-events-none z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#18305f]/62 to-[#18305f]/92 pointer-events-none z-10"></div>
         <div className="relative z-20 max-w-2xl text-white mt-4 pointer-events-none">
           <div className="flex justify-center mb-4">
-            <span className="bg-white/10 border border-white/20 text-indigo-200 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
+            <span className="bg-[#ffe9ce]/15 border border-[#ffbe86]/30 text-[#ffe9ce] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest backdrop-blur-sm shadow-lg">
               Digital Contents Transformation Team
             </span>
           </div>
           <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-white drop-shadow-2xl">
-            DECON <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-300">Digital Hub</span>
+            DECON <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ffe156] via-[#ffbe86] to-[#ffb5c2]">Digital Hub</span>
           </h1>
-          <p className="text-slate-300 text-sm md:text-base font-medium max-w-lg mx-auto leading-relaxed opacity-90">
+          <p className="text-[#fff4dc] text-sm md:text-base font-medium max-w-lg mx-auto leading-relaxed opacity-90">
             업무 효율화를 위한 모든 디지털 자산을 한곳에.<br />
             필요한 도구와 문서를 빠르고 쉽게 찾아보세요.
           </p>
         </div>
 
         <div className="absolute top-6 right-6 z-50 flex items-center gap-3">
-          <Link href="/ideas" className="flex items-center gap-2 bg-yellow-400 hover:bg-yellow-300 text-slate-900 px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-yellow-400/20 hover:scale-105">
+          <Link href="/ideas" className="flex items-center gap-2 bg-[#ffe156] hover:bg-[#ffbe86] text-[#18305f] px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-[#ffe156]/20 hover:scale-105">
             💡 아이디어 제안
           </Link>
           {isAdmin ? (
-            <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-indigo-500/30">
+            <button onClick={() => router.push('/admin')} className="flex items-center gap-2 bg-[#3777ff] hover:bg-[#255ed3] text-white px-4 py-2 rounded-full transition-all text-xs font-bold shadow-lg shadow-[#3777ff]/30">
               <RiAdminLine className="text-lg" /> Admin Dashboard
             </button>
           ) : (
-            <Link href="/login" className="flex items-center gap-2 text-xs text-slate-400 hover:text-white transition-colors bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/40 backdrop-blur-sm border border-white/10">
+            <Link href="/login" className="flex items-center gap-2 text-xs text-[#ffe9ce]/80 hover:text-white transition-colors bg-black/20 px-3 py-1.5 rounded-full hover:bg-black/40 backdrop-blur-sm border border-[#ffe9ce]/20">
               <RiAdminLine /> 관리자 전용
             </Link>
           )}
@@ -326,15 +326,15 @@ export default function Home() {
       </div>
 
       <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-20 pb-20">
-        <div className="sticky top-6 z-40 bg-white/90 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-6 mb-10 ring-1 ring-slate-900/5 transition-all duration-300">
+        <div className="sticky top-6 z-40 bg-white/92 backdrop-blur-xl rounded-2xl shadow-xl border border-[#ffe9ce] p-6 mb-10 ring-1 ring-[#ffbe86]/15 transition-all duration-300">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
             <div className="relative w-full md:w-72 flex-shrink-0 group">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-indigo-500">
-                <FiSearch className="text-slate-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none transition-colors group-focus-within:text-[#3777ff]">
+                <FiSearch className="text-[#9aa7b6]" />
               </div>
               <input
                 type="text" placeholder="검색..."
-                className="pl-10 p-3 bg-slate-50 border border-slate-200 rounded-xl w-full text-sm focus:ring-2 focus:ring-indigo-500 focus:bg-white outline-none transition-all placeholder:text-slate-400"
+                className="pl-10 p-3 bg-[#fff8ec] border border-[#ffe9ce] rounded-xl w-full text-sm focus:ring-2 focus:ring-[#3777ff] focus:bg-white outline-none transition-all placeholder:text-[#9aa7b6]"
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
@@ -346,9 +346,9 @@ export default function Home() {
                   className={`flex items-center gap-2 px-4 py-2 text-[11px] font-bold rounded-full transition-all border whitespace-nowrap flex-shrink-0
                     ${filterType === type
                       ? type === 'FAVORITE'
-                        ? 'bg-yellow-50 text-yellow-600 border-yellow-200 shadow-md transform scale-105'
-                        : 'bg-slate-800 text-white border-slate-800 shadow-md transform scale-105'
-                      : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700'}`}>
+                        ? 'bg-[#fff7c8] text-[#8a7110] border-[#ffe156] shadow-md transform scale-105'
+                        : 'bg-[#3777ff] text-white border-[#3777ff] shadow-md transform scale-105'
+                      : 'bg-white text-[#546a7b] border-[#ffe9ce] hover:bg-[#fff8ec] hover:border-[#ffbe86] hover:text-[#18305f]'}`}>
                   {getFilterIcon(type)}
                   {getFilterLabel(type)}
                 </button>
@@ -366,12 +366,12 @@ export default function Home() {
                 if (catItems.length === 0) return null;
                 return (
                   <section key={type} className="animate-fade-in-up">
-                    <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
-                      <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+                    <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[#ffe9ce]">
+                      <h2 className="text-xl font-bold text-[#18305f] flex items-center gap-3">
                         {categoryConfig[type].icon}
                         {categoryConfig[type].label}
                       </h2>
-                      <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200">
+                      <span className="text-xs bg-white text-[#546a7b] font-bold px-2.5 py-1 rounded-full border border-[#ffe9ce]">
                         {catItems.length}
                       </span>
                     </div>
@@ -386,12 +386,12 @@ export default function Home() {
 
           {filterType !== 'ALL' && (
             <div className="animate-fade-in-up">
-              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200/60">
-                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-3">
+              <div className="flex items-center gap-3 mb-6 pb-3 border-b border-[#ffe9ce]">
+                <h2 className="text-xl font-bold text-[#18305f] flex items-center gap-3">
                   {getFilterIcon(filterType)}
                   {getFilterLabel(filterType)}
                 </h2>
-                <span className="text-xs bg-slate-100 text-slate-500 font-bold px-2.5 py-1 rounded-full border border-slate-200">
+                <span className="text-xs bg-white text-[#546a7b] font-bold px-2.5 py-1 rounded-full border border-[#ffe9ce]">
                   {allFiltered.length}
                 </span>
               </div>
@@ -402,8 +402,8 @@ export default function Home() {
           )}
 
           {allFiltered.length === 0 && (
-            <div className="col-span-full flex flex-col items-center justify-center py-24 text-slate-400 bg-white/50 rounded-2xl border border-dashed border-slate-200">
-              {filterType === 'FAVORITE' ? <FiStar className="text-4xl mb-4 text-slate-300" /> : <FiSearch className="text-4xl mb-4 text-slate-300" />}
+            <div className="col-span-full flex flex-col items-center justify-center py-24 text-[#7b8796] bg-white/60 rounded-2xl border border-dashed border-[#ffbe86]/60">
+              {filterType === 'FAVORITE' ? <FiStar className="text-4xl mb-4 text-[#ffe156]" /> : <FiSearch className="text-4xl mb-4 text-[#ffbe86]" />}
               <p className="text-sm">
                 {filterType === 'FAVORITE' ? "아직 즐겨찾기한 항목이 없습니다. ⭐ 별표를 눌러 추가해보세요!" : "검색 결과가 없습니다."}
               </p>
@@ -411,7 +411,7 @@ export default function Home() {
           )}
         </div>
 
-        <footer className="text-center text-slate-400 text-[10px] uppercase tracking-widest mt-24 py-10 border-t border-slate-100">
+        <footer className="text-center text-[#9aa7b6] text-[10px] uppercase tracking-widest mt-24 py-10 border-t border-[#ffe9ce]">
           © DECON Digital Contents Transformation Team. All rights reserved.
         </footer>
       </div>
