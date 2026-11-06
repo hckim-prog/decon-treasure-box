@@ -1,11 +1,20 @@
 export const meta = {
  title:'HA+ LAB(LMS) | 수업과 학습을 연결합니다',
  date:'2026.11.06',
+ description:'한빛아카데미가 자체 개발을 추진하는 교재 기반 학습관리 서비스, HA+ LAB(LMS). 학생의 학습을 교수의 다음 수업으로 연결합니다.',
+ referenceNote:'참고 문서는 자체 개발 전환 전에 작성된 요구사항입니다. 세부 범위는 자체 개발 방향에 맞춰 재정리할 예정입니다.',
+ pdfPages:5,
  requestUrl:'https://docs.google.com/document/d/1m7HI-JXl9AgTg43aH0IKRbLVtceNkyW2oaJC3Vp41n8/edit?tab=t.0',
- originalUrl:'https://docs.google.com/document/d/1GWbCywDhVdEbfD8GXneoHl_2kQ4HWUKr3WlTtPl7MV4/edit?tab=t.c3binuv9q9xv',
+ summaryUrl:'https://docs.google.com/document/d/1m7HI-JXl9AgTg43aH0IKRbLVtceNkyW2oaJC3Vp41n8/edit?tab=t.6uz6obkfbm2s',
+ originalUrl:'https://docs.google.com/document/d/1GWbCywDhVdEbfD8GXneoHl_2kQ4HWUKr3WlTtPl7MV4/edit?tab=t.k5weklx7bz7w',
  pdfUrl:'./ha-lab-introduction.pdf',
  drivePdfUrl:'https://drive.google.com/file/d/1aIMt3FcuBKfTNoFV5o4nVHxwNYtV0DF_/view?usp=drivesdk'
 };
+export const expansionGroups = [
+ {title:'수업 준비',text:'교수가 직접 수업을 개설하고, 다음 학기에 수업 구성을 복사해 활용합니다.'},
+ {title:'학습과 질문',text:'학습 일정과 퀴즈 운영을 설정하고, 질문과 답변 및 수업별 보충자료를 제공합니다.'},
+ {title:'공동 관리',text:'공동 교수와 조교가 권한에 따라 수업을 함께 관리하고, 학습 결과를 내려받습니다.'}
+];
 // One content source for the introduction website and PDF.
 export const steps = [
  {no:'01',icon:'settings',role:'운영 담당자 / 교수',title:'수업을 준비해요',desc:'운영 담당자가 교재와 수업 반을 연결합니다. 교수는 교재를 확인하고 학생에게 참여 코드를 안내합니다.'},
