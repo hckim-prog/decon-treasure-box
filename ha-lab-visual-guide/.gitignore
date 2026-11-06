@@ -1,0 +1,7 @@
+node_modules/
+.vercel/
+qa/
+tmp/
+*.log
+.env*
+!.env.example
