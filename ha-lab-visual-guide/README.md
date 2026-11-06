@@ -4,8 +4,8 @@
 
 ## 확인하기
 
-- `public/index.html`: 소개 페이지
-- `public/ha-lab-introduction.pdf`: 같은 내용을 담은 3쪽 소개 자료
+- [소개 페이지](https://ha-lab-visual-guide.vercel.app): 공개 웹사이트
+- [소개 PDF](https://ha-lab-visual-guide.vercel.app/ha-lab-introduction.pdf): 같은 내용을 담은 4쪽 소개 자료
 - [Google Drive 소개 PDF](https://drive.google.com/file/d/1aIMt3FcuBKfTNoFV5o4nVHxwNYtV0DF_/view)
 
 ## 구성
@@ -32,6 +32,12 @@ npm start
 
 브라우저 인쇄에서는 A4 가로, 배경 그래픽 포함, 머리글과 바닥글 해제를 선택합니다. 내용을 바꾸면 PDF도 함께 갱신합니다.
 
+## 디자인과 글꼴
+
+화면의 본문은 18px, 보조 설명은 최소 16px을 기준으로 구성했습니다. 교수 화면과 학생 화면은 각각 넓은 영역에 배치하고, 모바일에서는 한 열로 이어집니다. PDF는 소개, 수업 흐름, 교수 화면, 학생 화면의 4쪽 구성입니다.
+
+`public/fonts/ha-lab-sans.woff2`는 [Google Fonts의 Noto Sans KR](https://github.com/google/fonts/tree/main/ofl/notosanskr) 가변 글꼴에서 현재 소개 문구와 기본 영문 문자를 추린 파일입니다. SIL Open Font License 1.1이 적용되며 원문은 같은 폴더의 `OFL.txt`에 있습니다. 빌드 과정에서 글꼴을 HTML에 포함하므로 외부 글꼴 서버에 연결하지 않습니다. 소개 문구에 새로운 한글 문자를 추가하면 글꼴 파일도 갱신해야 하며, 포함되지 않은 문자는 시스템 글꼴로 표시됩니다.
+
 ## GitHub와 Vercel
 
 공개 저장소 `hckim-prog/decon-treasure-box`의 `ha-lab-introduction-20261106` 브랜치, `ha-lab-visual-guide` 폴더에 보관합니다.
@@ -56,4 +62,4 @@ Vercel 설정:
 
 ## 확인 결과
 
-1440 / 768 / 390 / 320px 화면에서 가로 넘침, 깨진 문자와 페이지 내 연결 오류가 없는지 확인했습니다. PDF는 3쪽이며 한글 표시와 배치를 확인했습니다.
+1440 / 1024 / 768 / 390 / 320px 화면에서 표시되는 글씨가 최소 16px인지, 가로 넘침, 깨진 문자와 페이지 내 연결 오류가 없는지 확인했습니다. PDF는 A4 가로 4쪽이며 한글 표시와 배치를 확인했습니다.
